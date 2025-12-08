@@ -1,0 +1,68 @@
+# PowerShell
+*.ps1~
+*.psc1
+*.pssc
+*.psd1~
+
+# IDE
+.vs/
+.vscode/
+*.swp
+*.swo
+*~
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Temp and cache
+tmp/
+temp/
+cache/
+*.tmp
+*.log
+*.bak
+*.old
+
+# Reports
+*.html
+!README.md
+reports/
+
+# Credentials
+*.cred
+*.key
+*.pem
+*.pfx
+*.p12
+*.keystore
+.env
+.env.local
+
+# Build
+bin/
+obj/
+dist/
+build/
+out/
+
+# Package files
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+
+# VS Code
+.vscode/settings.json
+.vscode/extensions.json
+
+# Project specific
+local_config.ps1
+test_results/
+diagnostics/
