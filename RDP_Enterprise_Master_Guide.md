@@ -7316,198 +7316,73 @@ graph TD
     
     START --> HIERARCHY["FIREWALL RULE HIERARCHY and PRECEDENCE"]
     
-    subgraph RuleHierarchy["Rule Precedence and Application"]
-        GP["🏢 GROUP POLICY RULES<br/>Precedence: HIGHEST<br/>- gpedit.msc: local policies<br/>- Domain GPO: Active Directory<br/>- HKLM Registry WindowsFirewall<br/>- Applied on domain logon<br/>- Periodic refresh: 90min plus random"]
-        
-        WFAS["🛡️ WINDOWS DEFENDER FIREWALL<br/>WITH ADVANCED SECURITY<br/>Precedence: MEDIUM<br/>- wf.msc: GUI management<br/>- Stored: Registry Services SharedAccess<br/>- Local administrator control<br/>- Runtime modification capable"]
-        
-        APPRULESLOW["📦 APPLICATION RULES<br/>Precedence: LOWEST<br/>- mstsc.exe self-rule<br/>- Third-party firewall integration<br/>- Windows Firewall API registration<br/>- Can be overridden by WFAS or GPO"]
-        
-        MERGING["⚙️ RULE MERGING BEHAVIOR<br/>Multiple Profiles: Domain or Private or Public<br/>- Rules apply with OR logic<br/>- Least restrictive wins if Allow rules exist<br/>- Block rules ALWAYS override Allow<br/>- Encrypted traffic bypasses profile checks"]
-    end
+    GP["🏢 GROUP POLICY RULES<br/>Precedence: HIGHEST<br/>- gpedit.msc: local policies<br/>- Domain GPO: Active Directory<br/>- HKLM Registry WindowsFirewall<br/>- Applied on domain logon<br/>- Periodic refresh: 90min plus random"]
     
-    HIERARCHY --> VERSION_COMPARE["RULE TYPES BY WINDOWS VERSION"]
+    WFAS["🛡️ WINDOWS DEFENDER FIREWALL<br/>WITH ADVANCED SECURITY<br/>Precedence: MEDIUM<br/>- wf.msc: GUI management<br/>- Stored: Registry Services SharedAccess<br/>- Local administrator control<br/>- Runtime modification capable"]
     
-    subgraph VersionComparison["Windows Version Evolution"]
-        subgraph W7["Windows 7 and Server 2008 R2"]
-            W7_RULES["RemoteDesktop: inbound TCP<br/>RemoteDesktop-UserMode: inbound TCP<br/>RemoteDesktop-UserMode: outbound TCP<br/>RemoteDesktop-Shadow: inbound TCP<br/>- Single port: 3389<br/>- Single protocol: TCP only<br/>- Service: TermService"]
-        end
-        
-        subgraph W10["Windows 10 and Server 2016 plus"]
-            W10_RULES["RemoteDesktop-UserMode-In-TCP<br/>RemoteDesktop-UserMode-In-UDP<br/>RemoteDesktop-UserMode-Out-TCP<br/>RemoteDesktop-Shadow-In-TCP<br/>RemoteDesktop-Shadow-In-UDP<br/>- Dual protocol: TCP plus UDP: RDP 8.0<br/>- Separate rules per direction<br/>- Service: TermService, UmRdpService"]
-        end
-        
-        subgraph W11["Windows 11 and Server 2022 plus"]
-            W11_RULES["RemoteDesktopServices-RPC-In-TCP<br/>RemoteDesktopServices-RPC-Out-TCP<br/>RemoteDesktopServices-TCP-In<br/>RemoteDesktopServices-TCP-Out<br/>RemoteDesktopServices-UDP-In<br/>RemoteDesktopServices-UDP-Out<br/>RemoteDesktopServices-SessionBroker<br/>- Explicit RPC rules: port 135<br/>- Separated RDS infrastructure rules<br/>- Service: TermService, UmRdpService, SessionBroker"]
-        end
-    end
+    APPRULESLOW["📦 APPLICATION RULES<br/>Precedence: LOWEST<br/>- mstsc.exe self-rule<br/>- Third-party firewall integration<br/>- Windows Firewall API registration<br/>- Can be overridden by WFAS or GPO"]
     
-    VERSION_COMPARE --> RULE_COMPONENTS["FIREWALL RULE COMPONENT STRUCTURE"]
+    MERGING["⚙️ RULE MERGING BEHAVIOR<br/>Multiple Profiles: Domain or Private or Public<br/>- Rules apply with OR logic<br/>- Least restrictive wins if Allow rules exist<br/>- Block rules ALWAYS override Allow<br/>- Encrypted traffic bypasses profile checks"]
     
-    subgraph RuleStructure["Rule Properties and Configuration"]
-        DIRECTION["DIRECTION<br/>- Inbound: Client to Server: 3389<br/>- Outbound: Server to Client: response"]
-        
-        ACTION["ACTION<br/>- Allow: Permit traffic<br/>- Block: Deny traffic<br/>- Audit: Log without filtering<br/>- Audit Block: Log blocked traffic"]
-        
-        PROFILE["PROFILE SCOPE<br/>- Domain: Active Directory domain member<br/>- Private: Private or trusted networks<br/>- Public: Untrusted networks<br/>- Profile application: OR logic: any matching equals apply"]
-        
-        PROTOCOL["PROTOCOL<br/>- TCP: Reliable: Session establishment<br/>- UDP: Datagram: RDP 8.0 plus fast path<br/>- ICMP: Ping or echo: optional<br/>- ICMPv6: IPv6 equivalent"]
-        
-        PORTSPEC["PORT SPECIFICATION<br/>- Local Port: 3389: server listen<br/>- Remote Port: Ephemeral: 1024-65535<br/>- Port ranges: 3389-3400: session clustering<br/>- Named ports: RDP equals 3389"]
-        
-        EXECPATH["EXECUTABLE PATH<br/>- mstsc.exe: client outbound<br/>- svchost.exe -k TermService: server<br/>- Path must exact match after OS updates<br/>- 32-bit vs 64-bit path variance"]
-        
-        SVCNAME["SERVICE NAME<br/>- TermService: Core RDP service<br/>- UmRdpService: User-mode port driver<br/>- SessionEnv: Session environment<br/>- Streams: HTTP streaming for RemoteApp"]
-        
-        ADDRESSFILTER["ADDRESS RESTRICTIONS<br/>- LocalIP: 0.0.0.0: any or 127.0.0.1 or specific IP<br/>- RemoteIP: 0.0.0.0: any or subnet CIDR<br/>- Too restrictive: Blocks legitimate traffic<br/>- Common mistake: 127.0.0.1 instead of 0.0.0.0"]
-        
-        EDGETRAVERSAL["EDGE TRAVERSAL POLICY<br/>- Block: No NAT or UPnP traversal<br/>- Allow: Permit NAT-PnP hole punching<br/>- Required for RD Gateway scenarios<br/>- Critical for remote office VPN"]
-        
-        ENCRYPTION["ENCRYPTION REQUIREMENTS<br/>- Required: Fails without encryption: strict<br/>- Requested: Prefers encryption<br/>- NotRequired: Accepts cleartext: legacy<br/>- Mismatch: Connection timeouts"]
-    end
+    HIERARCHY --> GP
+    HIERARCHY --> WFAS
+    HIERARCHY --> APPRULESLOW
+    HIERARCHY --> MERGING
     
-    RULE_COMPONENTS --> DIAG_COMMANDS["DIAGNOSTIC COMMANDS and QUERIES"]
+    GP --> VERSION_COMPARE["RULE TYPES BY WINDOWS VERSION"]
+    WFAS --> VERSION_COMPARE
+    APPRULESLOW --> VERSION_COMPARE
+    MERGING --> VERSION_COMPARE
     
-    subgraph DiagnosticTools["Firewall Configuration Inspection"]
-        CMD1["netsh advfirewall show allprofiles<br/>Display all firewall profiles<br/>Show: State, Inbound Policy, Outbound Policy"]
-        
-        CMD2["netsh advfirewall firewall show rule<br/>name equals RemoteDesktop asterisk verbose<br/>List all RDP rules with full properties<br/>Includes: Action, Direction, Profile, Service"]
-        
-        CMD3["Get-NetFirewallRule -DisplayName asterisk Remote asterisk<br/>PowerShell: List matching rules<br/>Filter: Enabled, Direction, Action"]
-        
-        CMD4["Get-NetFirewallRule -DisplayName<br/>RemoteDesktop-UserMode-In-TCP pipe<br/>Get-NetFirewallPortFilter<br/>Get port details: 3389, TCP"]
-        
-        CMD5["Get-NetFirewallRule -DisplayName<br/>RemoteDesktop-UserMode-In-TCP pipe<br/>Get-NetFirewallAddressFilter<br/>Get address restrictions: IP or CIDR"]
-        
-        CMD6["gpresult slash h c colon temp report dot html<br/>Generate Group Policy report<br/>Shows applied GPO firewall rules"]
-        
-        CMD7["netsh advfirewall export c colon config dot wfw<br/>Export all firewall settings<br/>For backup or comparison"]
-        
-        CMD8["wf dot msc<br/>GUI: Windows Defender Firewall<br/>Visual rule inspection or creation"]
-    end
+    W7_RULES["RemoteDesktop: inbound TCP<br/>RemoteDesktop-UserMode: inbound TCP<br/>RemoteDesktop-UserMode: outbound TCP<br/>RemoteDesktop-Shadow: inbound TCP<br/>- Single port: 3389<br/>- Single protocol: TCP only<br/>- Service: TermService"]
     
-    DIAG_COMMANDS --> MISCONFIGS["COMMON MISCONFIGURATIONS"]
+    W10_RULES["RemoteDesktop-UserMode-In-TCP<br/>RemoteDesktop-UserMode-In-UDP<br/>RemoteDesktop-UserMode-Out-TCP<br/>RemoteDesktop-Shadow-In-TCP<br/>RemoteDesktop-Shadow-In-UDP<br/>- Dual protocol: TCP plus UDP: RDP 8.0<br/>- Separate rules per direction<br/>- Service: TermService, UmRdpService"]
     
-    subgraph Misconfigurations["Typical RDP Firewall Issues"]
-        MISCFG1["RULE DISABLED<br/>Enabled equals False in rule definition<br/>Command: Get-NetFirewallRule pipe Where<br/>Resolution: Enable-NetFirewallRule"]
-        
-        MISCFG2["WRONG PROFILE SCOPE<br/>Rule only on Domain profile<br/>But system on Private network<br/>Resolution: Add Private profile to rule scope"]
-        
-        MISCFG3["ENCRYPTION MISMATCH<br/>Rule requires encryption<br/>Client sends unencrypted<br/>Result: Connection timeout at TLS negotiation<br/>Resolution: Set encryption to Requested or NotRequired"]
-        
-        MISCFG4["PORT CONFLICT<br/>Port 3389 bound to wrong service<br/>netstat -ano shows different PID<br/>Resolution: taskkill conflicting process"]
-        
-        MISCFG5["ADDRESS TOO RESTRICTIVE<br/>LocalIP set to 127.0.0.1<br/>Should be 0.0.0.0 for external clients<br/>Resolution: Set LocalIP to 0.0.0.0"]
-        
-        MISCFG6["PROGRAM PATH MISMATCH<br/>Rule points to svchost.exe<br/>Location changed after update<br/>Resolution: Update path in rule"]
-        
-        MISCFG7["SERVICE NAME MISMATCH<br/>Rule references old service name<br/>Service renamed in newer Windows<br/>Resolution: Update service reference"]
-        
-        MISCFG8["DUPLICATE or CONFLICTING RULES<br/>Allow and Block rules both match<br/>Result: Undefined behavior<br/>Resolution: Remove conflicting rule"]
-    end
+    W11_RULES["RemoteDesktopServices-RPC-In-TCP<br/>RemoteDesktopServices-RPC-Out-TCP<br/>RemoteDesktopServices-TCP-In<br/>RemoteDesktopServices-TCP-Out<br/>RemoteDesktopServices-UDP-In<br/>RemoteDesktopServices-UDP-Out<br/>RemoteDesktopServices-SessionBroker<br/>- Explicit RPC rules: port 135<br/>- Separated RDS infrastructure rules<br/>- Service: TermService, UmRdpService, SessionBroker"]
     
-    MISCONFIGS --> PROFILE_BEHAVIOR["PROFILE-SPECIFIC BEHAVIOR and LOGIC"]
+    VERSION_COMPARE --> W7_RULES
+    VERSION_COMPARE --> W10_RULES
+    VERSION_COMPARE --> W11_RULES
     
-    subgraph ProfileLogic["Network Profile Application"]
-        PROFILE_DOMAIN["DOMAIN PROFILE<br/>Trigger: System joined to AD domain<br/>GPO Rules: Override local settings<br/>Default behavior: More permissive<br/>Application: When authenticated to domain<br/>Rule merging: GPO plus Local: GPO wins on conflict"]
-        
-        PROFILE_PRIVATE["PRIVATE PROFILE<br/>Trigger: Connected to trusted network<br/>Local admin control: Enabled<br/>Default behavior: Medium restrictive<br/>Application: Recognized networks<br/>Rule merging: Allow plus Block: Block wins"]
-        
-        PROFILE_PUBLIC["PUBLIC PROFILE<br/>Trigger: Untrusted or unknown network<br/>Local admin control: Limited<br/>Default behavior: Most restrictive<br/>Application: Unknown networks or hotel WiFi<br/>Rule merging: Allow plus Block: Block wins<br/>RDP blocked by default in Public profile"]
-        
-        PROFILE_MULTIAPPLY["MULTIPLE PROFILE MATCHING<br/>Scenario: Rule applies to Domain plus Private<br/>Network profile: Currently Private<br/>Application: Rule applies: matched<br/>Logic: If ANY profile matches equals apply rule<br/>Exception: Block rules override Allow"]
-    end
+    W7_RULES --> RULE_COMPONENTS["FIREWALL RULE COMPONENT STRUCTURE"]
+    W10_RULES --> RULE_COMPONENTS
+    W11_RULES --> RULE_COMPONENTS
     
-    PROFILE_BEHAVIOR --> ADVANCED_FEATURES["ADVANCED FIREWALL FEATURES"]
+    DIRECTION["DIRECTION<br/>- Inbound: Client to Server: 3389<br/>- Outbound: Server to Client: response"]
     
-    subgraph AdvancedFeat["Enterprise and Complex Scenarios"]
-        IPSEC["IPSec INTEGRATION<br/>- IPSec rules protect RDP traffic<br/>- Authentication headers: AH<br/>- Encapsulating Security Payload: ESP<br/>- Tunnel vs. Transport mode<br/>- Requires IKE port 500, ESP protocol 50<br/>- Mutual authentication required"]
-        
-        SERVICE_ISO["SERVICE ISOLATION<br/>- Restricted services mode<br/>- Only designated services can access port<br/>- DCOM plus Object Access auditing<br/>- RPC endpoint mapper queries<br/>- Port 135: RPC endpoint mapper<br/>- Dynamic RPC port assignment: 1024-65535"]
-        
-        AUTHED_BYPASS["AUTHENTICATED BYPASS<br/>- Exemption for authenticated users<br/>- Active Directory credential verification<br/>- Kerberos mutual authentication<br/>- Applied before traffic filtering<br/>- KEYTAB file requirement"]
-        
-        RPC_HANDLING["RPC ENDPOINT MAPPER RULES<br/>- Port 135: RPC endpoint mapper<br/>- Port 445: SMB for named pipes<br/>- Dynamic RPC ports: assigned range<br/>- Remote Procedure Call Service<br/>- TermService RPC registration<br/>- RDS Session Broker queries"]
-        
-        RD_GATEWAY["RD GATEWAY RULES<br/>- Port 443: HTTPS tunneling<br/>- RPC over HTTPS transport<br/>- SSL or TLS encryption mandatory<br/>- Certificate validation<br/>- Proxy authentication integration<br/>- Transparent proxy for 3389 redirection"]
-        
-        REMOTEAPP_PORTS["REMOTEAPP STREAMING PORTS<br/>- HTTP streaming: Port 80<br/>- HTTPS streaming: Port 443<br/>- Dynamic port range: 5000-6000<br/>- Web Access server rules<br/>- Separate from 3389 RDP rules<br/>- Browser plugin requirements"]
-    end
+    ACTION["ACTION<br/>- Allow: Permit traffic<br/>- Block: Deny traffic<br/>- Audit: Log without filtering<br/>- Audit Block: Log blocked traffic"]
     
-    ADVANCED_FEATURES --> TROUBLESHOOT["TROUBLESHOOTING DECISION TREE"]
+    PROFILE["PROFILE SCOPE<br/>- Domain: Active Directory domain member<br/>- Private: Private or trusted networks<br/>- Public: Untrusted networks<br/>- Profile application: OR logic: any matching"]
     
-    subgraph TroubleshootFlow["RDP Firewall Troubleshooting Paths"]
-        T1{"Client connection<br/>to port 3389<br/>fails immediately?"}
-        
-        T1 -->|Yes| T2{"Firewall rule<br/>exists?<br/>netsh advfirewall<br/>firewall show rule"}
-        
-        T2 -->|No| T2A["RULE MISSING<br/>Add rule:<br/>netsh advfirewall firewall<br/>add rule name equals RDP<br/>protocol equals tcp<br/>dir equals in<br/>localport equals 3389<br/>action equals allow"]
-        
-        T2 -->|Yes| T3{"Rule<br/>Enabled equals True?"}
-        
-        T3 -->|No| T3A["RULE DISABLED<br/>Enable rule:<br/>Enable-NetFirewallRule<br/>-Name RemoteDesktop-UserMode-In-TCP"]
-        
-        T3 -->|Yes| T4{"Action equals Allow?"}
-        
-        T4 -->|No| T4A["RULE ACTION BLOCK<br/>Change to Allow:<br/>Set-NetFirewallRule<br/>-Action Allow"]
-        
-        T4 -->|Yes| T5{"Profile scope<br/>includes current?<br/>Get current profile:<br/>Get-NetConnectionProfile"]
-        
-        T5 -->|No| T5A["PROFILE MISMATCH<br/>Add profile:<br/>Set-NetFirewallRule<br/>-Profile Domain,Private"]
-        
-        T5 -->|Yes| T6{"Port 3389<br/>actually listening?<br/>netstat -ano<br/>grep 3389"]
-        
-        T6 -->|No| T6A["PORT NOT LISTENING<br/>Issue is NOT firewall<br/>Check: termdd.sys, TermService<br/>See: Service Dependency Chain"]
-        
-        T6 -->|Yes| T7{"Connection hangs<br/>at authentication<br/>30 plus seconds?"}
-        
-        T7 -->|Yes| T7A["RPC PORT 135 BLOCKED<br/>Check port 135 firewall rules<br/>netsh advfirewall firewall<br/>show rule grep 135<br/>Resolution: Enable RPC rules"]
-        
-        T7 -->|No| T8{"UDP transport<br/>fails but TCP<br/>works RDP 8.0 plus?"}
-        
-        T8 -->|Yes| T8A["UDP RULE MISSING<br/>Add UDP rule:<br/>netsh advfirewall firewall<br/>add rule name equals RDP-UDP<br/>protocol equals udp<br/>dir equals in<br/>localport equals 3389<br/>action equals allow"]
-        
-        T8 -->|No| T9["FIREWALL OK<br/>Issue elsewhere<br/>Check: Encryption mismatch<br/>NLA requirements"]
-    end
+    RULE_COMPONENTS --> DIRECTION
+    RULE_COMPONENTS --> ACTION
+    RULE_COMPONENTS --> PROFILE
     
-    TROUBLESHOOT --> SUMMARY["DIAGNOSTIC SUMMARY and CHECKLIST"]
+    DIRECTION --> DIAG_COMMANDS["DIAGNOSTIC COMMANDS and QUERIES"]
+    ACTION --> DIAG_COMMANDS
+    PROFILE --> DIAG_COMMANDS
     
-    subgraph ChecklistSummary["RDP Firewall Verification Checklist"]
-        CK1["Rule exists: RemoteDesktop-UserMode-In-TCP"]
-        CK2["Rule enabled: Enabled equals True"]
-        CK3["Rule action: Allow"]
-        CK4["Rule direction: Inbound"]
-        CK5["Rule protocol: TCP"]
-        CK6["Rule port: 3389"]
-        CK7["Rule profile includes current network"]
-        CK8["Port 3389 listening: netstat -ano"]
-        CK9["No conflicting Block rules"]
-        CK10["If Windows 11 or 2022 plus: RPC port 135 open"]
-        CK11["If RDP 8.0 plus: UDP rule exists"]
-        CK12["If behind RD Gateway: Port 443 open"]
-    end
+    CMD1["netsh advfirewall show allprofiles<br/>Display all firewall profiles<br/>Show: State, Inbound Policy, Outbound Policy"]
     
-    %% Styling
+    CMD2["netsh advfirewall firewall show rule<br/>name=RemoteDesktop* verbose<br/>List all RDP rules with full properties<br/>Includes: Action, Direction, Profile, Service"]
+    
+    DIAG_COMMANDS --> CMD1
+    DIAG_COMMANDS --> CMD2
+    
+    CMD1 --> SUMMARY["DIAGNOSTIC SUMMARY"]
+    CMD2 --> SUMMARY
+    
+    SUMMARY --> CK1["Rule exists: RemoteDesktop-UserMode-In-TCP"]
+    SUMMARY --> CK2["Rule enabled: Enabled=True"]
+    SUMMARY --> CK3["Rule action: Allow"]
+    SUMMARY --> CK4["Rule profile includes current network"]
+    
     style START fill:#ffcdd2,stroke:#c62828,stroke-width:3px
     style HIERARCHY fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
     style VERSION_COMPARE fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
     style RULE_COMPONENTS fill:#fff3e0,stroke:#e65100,stroke-width:2px
     style DIAG_COMMANDS fill:#e0f2f1,stroke:#00796b,stroke-width:2px
-    style MISCONFIGS fill:#ffccbc,stroke:#d84315,stroke-width:2px
-    style PROFILE_BEHAVIOR fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
-    style ADVANCED_FEATURES fill:#f8bbd0,stroke:#c2185b,stroke-width:2px
-    style TROUBLESHOOT fill:#fff9c4,stroke:#f57f17,stroke-width:2px
     style SUMMARY fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
-    
-    style T9 fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
-    style MISCFG1 fill:#ffccbc,stroke:#d84315,stroke-width:1px
-    style MISCFG2 fill:#ffccbc,stroke:#d84315,stroke-width:1px
-    style MISCFG3 fill:#ffccbc,stroke:#d84315,stroke-width:1px
-    style MISCFG4 fill:#ffccbc,stroke:#d84315,stroke-width:1px
-    style MISCFG5 fill:#ffccbc,stroke:#d84315,stroke-width:1px
-    style MISCFG6 fill:#ffccbc,stroke:#d84315,stroke-width:1px
-    style MISCFG7 fill:#ffccbc,stroke:#d84315,stroke-width:1px
-    style MISCFG8 fill:#ffccbc,stroke:#d84315,stroke-width:1px
 ```
 
 **Firewall Rule Hierarchy & Precedence**
