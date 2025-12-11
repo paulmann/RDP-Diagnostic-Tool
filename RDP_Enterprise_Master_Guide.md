@@ -4493,58 +4493,58 @@ graph TB
     subgraph AnalysisDimensions["📊 PRIMARY ANALYSIS DIMENSIONS"]
         TIME["⏱️ TIME DIMENSION<br/>Historical vs. Real-time<br/>- Time windows: 1hr, 1day, 1week<br/>- Retention: 30/90/365 days<br/>- Sample rates: 1sec to 1hour"]
         LAYER["🪜 LAYER DIMENSION<br/>OSI Model Stratification<br/>- Layer 1-7 isolation<br/>- Cross-layer dependencies<br/>- Protocol state machines"]
-        COMPONENT["🔧 COMPONENT DIMENSION<br/>Infrastructure Layers<br/>- Hardware (NIC, GPU, CPU)<br/>- Kernel (termdd.sys, tdtcp.sys)<br/>- Services (TermService, UmRdpService)<br/>- Applications (mstsc.exe, Explorer)"]
+        COMPONENT["🔧 COMPONENT DIMENSION<br/>Infrastructure Layers<br/>- Hardware: NIC, GPU, CPU<br/>- Kernel: termdd.sys, tdtcp.sys<br/>- Services: TermService, UmRdpService<br/>- Applications: mstsc.exe, Explorer"]
         USER["👥 USER DIMENSION<br/>Session-Level Analytics<br/>- Per-user session metrics<br/>- Group aggregation<br/>- User role/department"]
-        NETWORK["🌐 NETWORK DIMENSION<br/>Topology Segmentation<br/>- LAN local (< 1ms latency)<br/>- WAN remote (10-100ms)<br/>- Internet (100-500ms)<br/>- Satellite/Mobile (1-5s)"]
+        NETWORK["🌐 NETWORK DIMENSION<br/>Topology Segmentation<br/>- LAN local: less than 1ms<br/>- WAN remote: 10-100ms<br/>- Internet: 100-500ms<br/>- Satellite/Mobile: 1-5s"]
     end
     
     subgraph TimeAnalysis["⏳ TIME-BASED ANALYSIS MODELS"]
-        HISTORICAL["HISTORICAL ANALYSIS<br/>Retrospective Pattern Recognition<br/>- Baseline establishment<br/>- Anomaly vs. normal<br/>- Trend comparison (week-over-week)<br/>- Seasonal pattern detection<br/>- Tools: logman aggregation, grafana"]
-        REALTIME["REAL-TIME ANALYSIS<br/>Live Stream Processing<br/>- Current state monitoring<br/>- Immediate alerting<br/>- <5sec detection latency<br/>- Action triggers<br/>- Tools: perfmon live, ETW streaming"]
+        HISTORICAL["HISTORICAL ANALYSIS<br/>Retrospective Pattern Recognition<br/>- Baseline establishment<br/>- Anomaly vs. normal<br/>- Trend comparison: week-over-week<br/>- Seasonal pattern detection<br/>- Tools: logman aggregation, grafana"]
+        REALTIME["REAL-TIME ANALYSIS<br/>Live Stream Processing<br/>- Current state monitoring<br/>- Immediate alerting<br/>- Detection latency: under 5sec<br/>- Action triggers<br/>- Tools: perfmon live, ETW streaming"]
         TRENDING["TRENDING ANALYSIS<br/>Time-Series Degradation<br/>- Performance trajectory<br/>- Capacity planning<br/>- Resource exhaustion prediction<br/>- SLA violation forecasting<br/>- Tools: xperf regression analysis"]
         CORRELATION_TIME["EVENT CORRELATION<br/>Temporal Sequencing<br/>- Event chain causation<br/>- Root event identification<br/>- Cascade analysis<br/>- Time-stamped sequencing<br/>- Tools: Event Viewer correlation"]
     end
     
     subgraph LayerAnalysis["🪜 LAYER-BASED ANALYSIS BREAKDOWN"]
-        subgraph L1["LAYER 1 - PHYSICAL"]
-            L1_ISSUES["- NIC hardware errors<br/>- Cable quality degradation<br/>- Auto-negotiation failures<br/>- Signal attenuation<br/>- Duplex mismatch (half/full)<br/>- Diagnostic: ethtool, portqry"]
+        subgraph L1["LAYER 1: PHYSICAL"]
+            L1_ISSUES["- NIC hardware errors<br/>- Cable quality degradation<br/>- Auto-negotiation failures<br/>- Signal attenuation<br/>- Duplex mismatch: half or full<br/>- Diagnostic: ethtool, portqry"]
         end
         
-        subgraph L2["LAYER 2 - DATA LINK"]
+        subgraph L2["LAYER 2: DATA LINK"]
             L2_ISSUES["- MAC addressing errors<br/>- VLAN tagging issues<br/>- Switch port misconfiguration<br/>- Spanning Tree reconvergence<br/>- 802.1X auth failures<br/>- Diagnostic: Get-NetAdapter, vlan configs"]
         end
         
-        subgraph L3["LAYER 3 - NETWORK"]
-            L3_ISSUES["- IP fragmentation<br/>- Routing loop detection<br/>- MTU mismatch (1500 vs 1492)<br/>- ICMP redirect storms<br/>- Firewall silently dropping packets<br/>- Diagnostic: route print, tracert"]
+        subgraph L3["LAYER 3: NETWORK"]
+            L3_ISSUES["- IP fragmentation<br/>- Routing loop detection<br/>- MTU mismatch: 1500 vs 1492<br/>- ICMP redirect storms<br/>- Firewall silently dropping packets<br/>- Diagnostic: route print, tracert"]
         end
         
-        subgraph L4["LAYER 4 - TRANSPORT"]
-            L4_ISSUES["- TCP retransmission spike<br/>- Connection timeout (SYN timeout)<br/>- Port exhaustion (ephemerals)<br/>- UDP packet loss >5%<br/>- Window scaling issues<br/>- Diagnostic: netstat -s, tcpdump"]
+        subgraph L4["LAYER 4: TRANSPORT"]
+            L4_ISSUES["- TCP retransmission spike<br/>- Connection timeout: SYN timeout<br/>- Port exhaustion: ephemerals<br/>- UDP packet loss greater than 5 percent<br/>- Window scaling issues<br/>- Diagnostic: netstat -s, tcpdump"]
         end
         
-        subgraph L5["LAYER 5 - SESSION"]
-            L5_ISSUES["- MCS domain negotiation failure<br/>- GCC capability mismatch<br/>- Virtual channel registration timeout<br/>- CredSSP authentication loop<br/>- TLS handshake failure<br/>- Diagnostic: mstsc /log:RDP log files"]
+        subgraph L5["LAYER 5: SESSION"]
+            L5_ISSUES["- MCS domain negotiation failure<br/>- GCC capability mismatch<br/>- Virtual channel registration timeout<br/>- CredSSP authentication loop<br/>- TLS handshake failure<br/>- Diagnostic: mstsc log RDP log files"]
         end
         
-        subgraph L6["LAYER 6 - PRESENTATION"]
+        subgraph L6["LAYER 6: PRESENTATION"]
             L6_ISSUES["- Codec negotiation failure<br/>- RemoteFX decoding error<br/>- GDI rendering lag<br/>- Color palette mismatch<br/>- Font rasterization failure<br/>- Diagnostic: ETW GDI tracing"]
         end
         
-        subgraph L7["LAYER 7 - APPLICATION"]
-            L7_ISSUES["- RDP protocol violation<br/>- Authentication failure (NTLM/Kerberos)<br/>- License server unreachable<br/>- Session broker connection timeout<br/>- RemoteApp serialization error<br/>- Diagnostic: Security event log"]
+        subgraph L7["LAYER 7: APPLICATION"]
+            L7_ISSUES["- RDP protocol violation<br/>- Authentication failure: NTLM or Kerberos<br/>- License server unreachable<br/>- Session broker connection timeout<br/>- RemoteApp serialization error<br/>- Diagnostic: Security event log"]
         end
     end
     
     subgraph ComponentAnalysis["🔧 COMPONENT-BASED ANALYSIS"]
         subgraph HW["HARDWARE COMPONENTS"]
-            HW_NIC["NIC Driver State<br/>- RX/TX errors<br/>- Dropped packet count<br/>- Offload capability<br/>- TSO/GSO status"]
+            HW_NIC["NIC Driver State<br/>- RX and TX errors<br/>- Dropped packet count<br/>- Offload capability<br/>- TSO and GSO status"]
             HW_GPU["GPU Utilization<br/>- VRAM saturation<br/>- Driver compatibility<br/>- DXGI shared surfaces"]
             HW_CPU["CPU Scheduling<br/>- Context switch rate<br/>- IPC efficiency<br/>- Cache coherency"]
             HW_MEM["Memory State<br/>- Page fault rate<br/>- Virtual address fragmentation<br/>- Working set pressure"]
         end
         
         subgraph KernelComp["KERNEL COMPONENTS"]
-            KC_TERMDD["termdd.sys State<br/>- Connection queue depth<br/>- Session state (Active/Idle)<br/>- Bandwidth limiter state"]
+            KC_TERMDD["termdd.sys State<br/>- Connection queue depth<br/>- Session state: Active or Idle<br/>- Bandwidth limiter state"]
             KC_TDTCP["tdtcp.sys State<br/>- Listen socket backlog<br/>- Session routing table<br/>- Connection handoff status"]
             KC_SCHED["Kernel Scheduler<br/>- Thread priority levels<br/>- Context switch delay<br/>- CPU affinity violations"]
         end
@@ -4563,36 +4563,36 @@ graph TB
     
     subgraph CorrelationMatrix["🔗 MULTI-DIMENSIONAL CORRELATION MATRIX"]
         subgraph Correlation["Intersection Analysis Points"]
-            C1["TIME × LAYER<br/>When did L4 issues appear?<br/>- Temporal spike (midnight batch?)<br/>- Sustained degradation<br/>- Intermittent pattern<br/>⟹ Guides diagnostic focus"]
+            C1["TIME multiplied by LAYER<br/>When did L4 issues appear?<br/>- Temporal spike at midnight?<br/>- Sustained degradation<br/>- Intermittent pattern<br/>⟹ Guides diagnostic focus"]
             
-            C2["TIME × USER<br/>Which user groups affected?<br/>- Department-specific impact<br/>- Shift-dependent pattern<br/>- Role-based timing<br/>⟹ Identifies affected population"]
+            C2["TIME multiplied by USER<br/>Which user groups affected?<br/>- Department-specific impact<br/>- Shift-dependent pattern<br/>- Role-based timing<br/>⟹ Identifies affected population"]
             
-            C3["LAYER × COMPONENT<br/>Which component per layer?<br/>- L4 failures → tdtcp.sys<br/>- L6 failures → codec engines<br/>- L7 failures → termsrv.dll<br/>⟹ Pinpoints root component"]
+            C3["LAYER multiplied by COMPONENT<br/>Which component per layer?<br/>- L4 failures to tdtcp.sys<br/>- L6 failures to codec engines<br/>- L7 failures to termsrv.dll<br/>⟹ Pinpoints root component"]
             
-            C4["COMPONENT × USER<br/>Which users via component?<br/>- GPU-dependent: CAD users<br/>- Audio codec: multimedia<br/>- Printer redirection: office<br/>⟹ Workload classification"]
+            C4["COMPONENT multiplied by USER<br/>Which users via component?<br/>- GPU-dependent: CAD users<br/>- Audio codec: multimedia<br/>- Printer redirection: office<br/>⟹ Workload classification"]
             
-            C5["NETWORK × TIME<br/>Network behavior patterns?<br/>- WAN bandwidth saturation<br/>- BGP flapping (BGP-aware monitoring)<br/>- Multicast issues<br/>⟹ Infrastructure trending"]
+            C5["NETWORK multiplied by TIME<br/>Network behavior patterns?<br/>- WAN bandwidth saturation<br/>- BGP flapping with BGP-aware monitoring<br/>- Multicast issues<br/>⟹ Infrastructure trending"]
             
-            C6["LAYER × NETWORK<br/>Layer issues per topology?<br/>- L2 issues: LAN switches<br/>- L4 issues: WAN links<br/>- L7 issues: firewall ALG<br/>⟹ Topology-specific diagnosis"]
+            C6["LAYER multiplied by NETWORK<br/>Layer issues per topology?<br/>- L2 issues: LAN switches<br/>- L4 issues: WAN links<br/>- L7 issues: firewall ALG<br/>⟹ Topology-specific diagnosis"]
         end
     end
     
-    subgraph AnalysisOutput["📈 ANALYSIS OUTPUT & RECOMMENDATIONS"]
-        ROOTCAUSE["ROOT CAUSE IDENTIFICATION<br/>Primary Factor Analysis<br/>- Primary cause (40%+ impact)<br/>- Secondary causes (10-40%)<br/>- Tertiary factors (<10%)<br/>- Example: 'TCP retransmission spike (L4)<br/>  caused by NIC driver bug (L1)<br/>  affecting WAN users (Network)<br/>  during 2-4pm daily (Time)']
+    subgraph AnalysisOutput["📈 ANALYSIS OUTPUT AND RECOMMENDATIONS"]
+        ROOTCAUSE["ROOT CAUSE IDENTIFICATION<br/>Primary Factor Analysis<br/>- Primary cause: 40 percent or more impact<br/>- Secondary causes: 10-40 percent<br/>- Tertiary factors: under 10 percent<br/>- Example: TCP retransmission spike L4<br/>  caused by NIC driver bug L1<br/>  affecting WAN users<br/>  during 2-4pm daily"]
         
-        IMPACT["IMPACT ASSESSMENT<br/>Business Quantification<br/>- User count affected: N<br/>- Average session impact: X ms latency<br/>- Business hours impact: Yes/No<br/>- SLA violation: Yes/No<br/>- Revenue impact: $Y per hour"]
+        IMPACT["IMPACT ASSESSMENT<br/>Business Quantification<br/>- User count affected: N<br/>- Average session impact: X milliseconds<br/>- Business hours impact: Yes or No<br/>- SLA violation: Yes or No<br/>- Revenue impact: Cost per hour"]
         
-        CONFIDENCE["CONFIDENCE SCORING<br/>Statistical Certainty<br/>- High (>90%): Direct evidence<br/>- Medium (60-90%): Pattern matching<br/>- Low (<60%): Correlation only<br/>- Example: 95% confidence based on<br/>  10,000 event samples"]
+        CONFIDENCE["CONFIDENCE SCORING<br/>Statistical Certainty<br/>- High: above 90 percent<br/>- Medium: 60-90 percent<br/>- Low: under 60 percent<br/>- Example: 95 percent confidence based on<br/>  10000 event samples"]
         
-        RECOMMENDATIONS["ACTIONABLE RECOMMENDATIONS<br/>Prioritized Remediation Path<br/>1. Immediate (0-1hr)<br/>   - Update NIC driver v2.4→2.5<br/>   - Restart TermService on RDSH01<br/>2. Short-term (1-24hr)<br/>   - Increase MTU to 1500<br/>3. Long-term (1-4 weeks)<br/>   - Network infrastructure upgrade<br/>   - Migrate to RDP 8.0 UDP transport"]
+        RECOMMENDATIONS["ACTIONABLE RECOMMENDATIONS<br/>Prioritized Remediation Path<br/>1. Immediate: 0-1 hour<br/>   - Update NIC driver v2.4 to v2.5<br/>   - Restart TermService on RDSH01<br/>2. Short-term: 1-24 hour<br/>   - Increase MTU to 1500<br/>3. Long-term: 1-4 weeks<br/>   - Network infrastructure upgrade<br/>   - Migrate to RDP 8.0 UDP transport"]
     end
     
     subgraph DecisionFlow["🎯 MULTI-AXIS ANALYSIS DECISION FLOW"]
         Q1["Query: Identify Issue Type<br/>L1-L7 Layering?<br/>Local vs. Remote?"]
         Q2["Segment by Time Axis<br/>When did issue occur?<br/>Recent vs. Historical?"]
-        Q3["Filter by User/Component<br/>Specific user/component<br/>or system-wide?"]
+        Q3["Filter by User and Component<br/>Specific user or component<br/>or system-wide?"]
         Q4["Correlate Dimensions<br/>Intersections found?<br/>Strong or weak signals?"]
-        Q5["Formulate Hypothesis<br/>Primary + secondary factors<br/>Confidence level?"]
+        Q5["Formulate Hypothesis<br/>Primary and secondary factors<br/>Confidence level?"]
     end
     
     %% Main flow
@@ -7314,122 +7314,122 @@ Windows Firewall rules for RDP have evolved through Windows versions. Understand
 graph TD
     START["🔥 WINDOWS FIREWALL ANALYSIS FOR RDP"]
     
-    START --> HIERARCHY["FIREWALL RULE HIERARCHY & PRECEDENCE"]
+    START --> HIERARCHY["FIREWALL RULE HIERARCHY and PRECEDENCE"]
     
-    subgraph RuleHierarchy["Rule Precedence & Application"]
-        GP["🏢 GROUP POLICY RULES<br/>Precedence: HIGHEST<br/>- gpedit.msc (local policies)<br/>- Domain GPO (Active Directory)<br/>- HKLM\\Software\\Policies\\Microsoft<br/>\\WindowsFirewall<br/>- Applied on domain logon<br/>- Periodic refresh: 90min + 1-30min random"]
+    subgraph RuleHierarchy["Rule Precedence and Application"]
+        GP["🏢 GROUP POLICY RULES<br/>Precedence: HIGHEST<br/>- gpedit.msc: local policies<br/>- Domain GPO: Active Directory<br/>- HKLM Registry WindowsFirewall<br/>- Applied on domain logon<br/>- Periodic refresh: 90min plus random"]
         
-        WFAS["🛡️ WINDOWS DEFENDER FIREWALL<br/>WITH ADVANCED SECURITY<br/>Precedence: MEDIUM<br/>- wf.msc (GUI management)<br/>- Stored: Registry HKLM\\SYSTEM<br/>\\CurrentControlSet\\Services\\SharedAccess<br/>- Local administrator control<br/>- Runtime modification capable"]
+        WFAS["🛡️ WINDOWS DEFENDER FIREWALL<br/>WITH ADVANCED SECURITY<br/>Precedence: MEDIUM<br/>- wf.msc: GUI management<br/>- Stored: Registry Services SharedAccess<br/>- Local administrator control<br/>- Runtime modification capable"]
         
-        APPRULESLOW["📦 APPLICATION RULES<br/>Precedence: LOWEST<br/>- mstsc.exe self-rule<br/>- Third-party firewall integration<br/>- Windows Firewall API registration<br/>- Can be overridden by WFAS/GPO"]
+        APPRULESLOW["📦 APPLICATION RULES<br/>Precedence: LOWEST<br/>- mstsc.exe self-rule<br/>- Third-party firewall integration<br/>- Windows Firewall API registration<br/>- Can be overridden by WFAS or GPO"]
         
-        MERGING["⚙️ RULE MERGING BEHAVIOR<br/>Multiple Profiles (Domain/Private/Public)<br/>- Rules apply with OR logic<br/>- Least restrictive wins if Allow rules exist<br/>- Block rules ALWAYS override Allow<br/>- Encrypted traffic bypasses profile checks"]
+        MERGING["⚙️ RULE MERGING BEHAVIOR<br/>Multiple Profiles: Domain or Private or Public<br/>- Rules apply with OR logic<br/>- Least restrictive wins if Allow rules exist<br/>- Block rules ALWAYS override Allow<br/>- Encrypted traffic bypasses profile checks"]
     end
     
     HIERARCHY --> VERSION_COMPARE["RULE TYPES BY WINDOWS VERSION"]
     
     subgraph VersionComparison["Windows Version Evolution"]
-        subgraph W7["Windows 7 / Server 2008 R2"]
-            W7_RULES["RemoteDesktop (inbound-TCP)<br/>RemoteDesktop-UserMode (inbound-TCP)<br/>RemoteDesktop-UserMode (outbound-TCP)<br/>RemoteDesktop-Shadow (inbound-TCP)<br/>- Single port: 3389<br/>- Single protocol: TCP only<br/>- Service: TermService"]
+        subgraph W7["Windows 7 and Server 2008 R2"]
+            W7_RULES["RemoteDesktop: inbound TCP<br/>RemoteDesktop-UserMode: inbound TCP<br/>RemoteDesktop-UserMode: outbound TCP<br/>RemoteDesktop-Shadow: inbound TCP<br/>- Single port: 3389<br/>- Single protocol: TCP only<br/>- Service: TermService"]
         end
         
-        subgraph W10["Windows 10 / Server 2016+"]
-            W10_RULES["RemoteDesktop-UserMode-In-TCP<br/>RemoteDesktop-UserMode-In-UDP<br/>RemoteDesktop-UserMode-Out-TCP<br/>RemoteDesktop-Shadow-In-TCP<br/>RemoteDesktop-Shadow-In-UDP<br/>- Dual protocol: TCP + UDP (RDP 8.0)<br/>- Separate rules per direction<br/>- Service: TermService, UmRdpService"]
+        subgraph W10["Windows 10 and Server 2016 plus"]
+            W10_RULES["RemoteDesktop-UserMode-In-TCP<br/>RemoteDesktop-UserMode-In-UDP<br/>RemoteDesktop-UserMode-Out-TCP<br/>RemoteDesktop-Shadow-In-TCP<br/>RemoteDesktop-Shadow-In-UDP<br/>- Dual protocol: TCP plus UDP: RDP 8.0<br/>- Separate rules per direction<br/>- Service: TermService, UmRdpService"]
         end
         
-        subgraph W11["Windows 11 / Server 2022+"]
-            W11_RULES["RemoteDesktopServices-RPC-In-TCP<br/>RemoteDesktopServices-RPC-Out-TCP<br/>RemoteDesktopServices-TCP-In<br/>RemoteDesktopServices-TCP-Out<br/>RemoteDesktopServices-UDP-In<br/>RemoteDesktopServices-UDP-Out<br/>RemoteDesktopServices-SessionBroker<br/>- Explicit RPC rules (port 135)<br/>- Separated RDS infrastructure rules<br/>- Service: TermService, UmRdpService, SessionBroker"]
+        subgraph W11["Windows 11 and Server 2022 plus"]
+            W11_RULES["RemoteDesktopServices-RPC-In-TCP<br/>RemoteDesktopServices-RPC-Out-TCP<br/>RemoteDesktopServices-TCP-In<br/>RemoteDesktopServices-TCP-Out<br/>RemoteDesktopServices-UDP-In<br/>RemoteDesktopServices-UDP-Out<br/>RemoteDesktopServices-SessionBroker<br/>- Explicit RPC rules: port 135<br/>- Separated RDS infrastructure rules<br/>- Service: TermService, UmRdpService, SessionBroker"]
         end
     end
     
     VERSION_COMPARE --> RULE_COMPONENTS["FIREWALL RULE COMPONENT STRUCTURE"]
     
-    subgraph RuleStructure["Rule Properties & Configuration"]
-        DIRECTION["DIRECTION<br/>- Inbound: Client→Server (3389)<br/>- Outbound: Server→Client (response)"]
+    subgraph RuleStructure["Rule Properties and Configuration"]
+        DIRECTION["DIRECTION<br/>- Inbound: Client to Server: 3389<br/>- Outbound: Server to Client: response"]
         
         ACTION["ACTION<br/>- Allow: Permit traffic<br/>- Block: Deny traffic<br/>- Audit: Log without filtering<br/>- Audit Block: Log blocked traffic"]
         
-        PROFILE["PROFILE SCOPE<br/>- Domain: Active Directory domain member<br/>- Private: Private/trusted networks<br/>- Public: Untrusted networks<br/>- Profile application: OR logic (any matching = apply)"]
+        PROFILE["PROFILE SCOPE<br/>- Domain: Active Directory domain member<br/>- Private: Private or trusted networks<br/>- Public: Untrusted networks<br/>- Profile application: OR logic: any matching equals apply"]
         
-        PROTOCOL["PROTOCOL<br/>- TCP: Reliable (Session establishment)<br/>- UDP: Datagram (RDP 8.0+ fast path)<br/>- ICMP: Ping/echo (optional)<br/>- ICMPv6: IPv6 equivalent"]
+        PROTOCOL["PROTOCOL<br/>- TCP: Reliable: Session establishment<br/>- UDP: Datagram: RDP 8.0 plus fast path<br/>- ICMP: Ping or echo: optional<br/>- ICMPv6: IPv6 equivalent"]
         
-        PORTSPEC["PORT SPECIFICATION<br/>- Local Port: 3389 (server listen)<br/>- Remote Port: Ephemeral (1024-65535)<br/>- Port ranges: 3389-3400 (session clustering)<br/>- Named ports: RDP=3389"]
+        PORTSPEC["PORT SPECIFICATION<br/>- Local Port: 3389: server listen<br/>- Remote Port: Ephemeral: 1024-65535<br/>- Port ranges: 3389-3400: session clustering<br/>- Named ports: RDP equals 3389"]
         
-        EXECPATH["EXECUTABLE PATH<br/>- mstsc.exe (client outbound)<br/>- svchost.exe -k TermService (server)<br/>- Path must exact match after OS updates<br/>- 32-bit vs 64-bit path variance"]
+        EXECPATH["EXECUTABLE PATH<br/>- mstsc.exe: client outbound<br/>- svchost.exe -k TermService: server<br/>- Path must exact match after OS updates<br/>- 32-bit vs 64-bit path variance"]
         
         SVCNAME["SERVICE NAME<br/>- TermService: Core RDP service<br/>- UmRdpService: User-mode port driver<br/>- SessionEnv: Session environment<br/>- Streams: HTTP streaming for RemoteApp"]
         
-        ADDRESSFILTER["ADDRESS RESTRICTIONS<br/>- LocalIP: 0.0.0.0 (any), 127.0.0.1, specific IP<br/>- RemoteIP: 0.0.0.0 (any), subnet CIDR<br/>- Too restrictive: Blocks legitimate traffic<br/>- Common mistake: 127.0.0.1 instead of 0.0.0.0"]
+        ADDRESSFILTER["ADDRESS RESTRICTIONS<br/>- LocalIP: 0.0.0.0: any or 127.0.0.1 or specific IP<br/>- RemoteIP: 0.0.0.0: any or subnet CIDR<br/>- Too restrictive: Blocks legitimate traffic<br/>- Common mistake: 127.0.0.1 instead of 0.0.0.0"]
         
-        EDGETRAVERSAL["EDGE TRAVERSAL POLICY<br/>- Block: No NAT/UPnP traversal<br/>- Allow: Permit NAT-PnP hole punching<br/>- Required for RD Gateway scenarios<br/>- Critical for remote office VPN"]
+        EDGETRAVERSAL["EDGE TRAVERSAL POLICY<br/>- Block: No NAT or UPnP traversal<br/>- Allow: Permit NAT-PnP hole punching<br/>- Required for RD Gateway scenarios<br/>- Critical for remote office VPN"]
         
-        ENCRYPTION["ENCRYPTION REQUIREMENTS<br/>- Required: Fails without encryption (strict)<br/>- Requested: Prefers encryption<br/>- NotRequired: Accepts cleartext (legacy)<br/>- Mismatch: Connection timeouts"]
+        ENCRYPTION["ENCRYPTION REQUIREMENTS<br/>- Required: Fails without encryption: strict<br/>- Requested: Prefers encryption<br/>- NotRequired: Accepts cleartext: legacy<br/>- Mismatch: Connection timeouts"]
     end
     
-    RULE_COMPONENTS --> DIAG_COMMANDS["DIAGNOSTIC COMMANDS & QUERIES"]
+    RULE_COMPONENTS --> DIAG_COMMANDS["DIAGNOSTIC COMMANDS and QUERIES"]
     
     subgraph DiagnosticTools["Firewall Configuration Inspection"]
-        CMD1["netsh advfirewall show allprofiles<br/>⟹ Display all firewall profiles<br/>⟹ Show: State, Inbound Policy, Outbound Policy"]
+        CMD1["netsh advfirewall show allprofiles<br/>Display all firewall profiles<br/>Show: State, Inbound Policy, Outbound Policy"]
         
-        CMD2["netsh advfirewall firewall show rule<br/>name='RemoteDesktop*' verbose<br/>⟹ List all RDP rules with full properties<br/>⟹ Includes: Action, Direction, Profile, Service"]
+        CMD2["netsh advfirewall firewall show rule<br/>name equals RemoteDesktop asterisk verbose<br/>List all RDP rules with full properties<br/>Includes: Action, Direction, Profile, Service"]
         
-        CMD3["Get-NetFirewallRule -DisplayName '*Remote*'<br/>⟹ PowerShell: List matching rules<br/>⟹ Filter: Enabled, Direction, Action"]
+        CMD3["Get-NetFirewallRule -DisplayName asterisk Remote asterisk<br/>PowerShell: List matching rules<br/>Filter: Enabled, Direction, Action"]
         
-        CMD4["Get-NetFirewallRule -DisplayName<br/>'RemoteDesktop-UserMode-In-TCP' |<br/>Get-NetFirewallPortFilter<br/>⟹ Get port details (3389, TCP)"]
+        CMD4["Get-NetFirewallRule -DisplayName<br/>RemoteDesktop-UserMode-In-TCP pipe<br/>Get-NetFirewallPortFilter<br/>Get port details: 3389, TCP"]
         
-        CMD5["Get-NetFirewallRule -DisplayName<br/>'RemoteDesktop-UserMode-In-TCP' |<br/>Get-NetFirewallAddressFilter<br/>⟹ Get address restrictions (IP/CIDR)"]
+        CMD5["Get-NetFirewallRule -DisplayName<br/>RemoteDesktop-UserMode-In-TCP pipe<br/>Get-NetFirewallAddressFilter<br/>Get address restrictions: IP or CIDR"]
         
-        CMD6["gpresult /h c:\\temp\\report.html<br/>⟹ Generate Group Policy report<br/>⟹ Shows applied GPO firewall rules"]
+        CMD6["gpresult slash h c colon temp report dot html<br/>Generate Group Policy report<br/>Shows applied GPO firewall rules"]
         
-        CMD7["netsh advfirewall export c:\\config.wfw<br/>⟹ Export all firewall settings<br/>⟹ For backup/comparison"]
+        CMD7["netsh advfirewall export c colon config dot wfw<br/>Export all firewall settings<br/>For backup or comparison"]
         
-        CMD8["wf.msc<br/>⟹ GUI: Windows Defender Firewall<br/>⟹ Visual rule inspection/creation"]
+        CMD8["wf dot msc<br/>GUI: Windows Defender Firewall<br/>Visual rule inspection or creation"]
     end
     
     DIAG_COMMANDS --> MISCONFIGS["COMMON MISCONFIGURATIONS"]
     
     subgraph Misconfigurations["Typical RDP Firewall Issues"]
-        MISCFG1["❌ RULE DISABLED<br/>Enabled=False in rule definition<br/>Command: Get-NetFirewallRule | Where {$_.DisplayName -like '*Remote*'}<br/>Resolution: Enable-NetFirewallRule -Name 'RemoteDesktop-UserMode-In-TCP'"]
+        MISCFG1["RULE DISABLED<br/>Enabled equals False in rule definition<br/>Command: Get-NetFirewallRule pipe Where<br/>Resolution: Enable-NetFirewallRule"]
         
-        MISCFG2["❌ WRONG PROFILE SCOPE<br/>Rule only on Domain profile<br/>But system on Private network<br/>Resolution: Add Private profile to rule scope<br/>Set-NetFirewallRule -Profile Domain,Private"]
+        MISCFG2["WRONG PROFILE SCOPE<br/>Rule only on Domain profile<br/>But system on Private network<br/>Resolution: Add Private profile to rule scope"]
         
-        MISCFG3["❌ ENCRYPTION MISMATCH<br/>Rule requires encryption<br/>Client sends unencrypted<br/>Result: Connection timeout at TLS negotiation<br/>Resolution: Set encryption to Requested/NotRequired"]
+        MISCFG3["ENCRYPTION MISMATCH<br/>Rule requires encryption<br/>Client sends unencrypted<br/>Result: Connection timeout at TLS negotiation<br/>Resolution: Set encryption to Requested or NotRequired"]
         
-        MISCFG4["❌ PORT CONFLICT<br/>Port 3389 bound to wrong service<br/>netstat -ano shows different PID<br/>Resolution: taskkill conflicting process<br/>Verify termdd.sys owns port"]
+        MISCFG4["PORT CONFLICT<br/>Port 3389 bound to wrong service<br/>netstat -ano shows different PID<br/>Resolution: taskkill conflicting process"]
         
-        MISCFG5["❌ ADDRESS TOO RESTRICTIVE<br/>LocalIP set to 127.0.0.1<br/>Should be 0.0.0.0 for external clients<br/>Resolution: Set LocalIP to 0.0.0.0"]
+        MISCFG5["ADDRESS TOO RESTRICTIVE<br/>LocalIP set to 127.0.0.1<br/>Should be 0.0.0.0 for external clients<br/>Resolution: Set LocalIP to 0.0.0.0"]
         
-        MISCFG6["❌ PROGRAM PATH MISMATCH<br/>Rule points to svchost.exe<br/>Location changed after update<br/>Resolution: Update path in rule<br/>Set-NetFirewallRule -Program 'exact\\path'"]
+        MISCFG6["PROGRAM PATH MISMATCH<br/>Rule points to svchost.exe<br/>Location changed after update<br/>Resolution: Update path in rule"]
         
-        MISCFG7["❌ SERVICE NAME MISMATCH<br/>Rule references old service name<br/>Service renamed in newer Windows<br/>Resolution: Update service reference"]
+        MISCFG7["SERVICE NAME MISMATCH<br/>Rule references old service name<br/>Service renamed in newer Windows<br/>Resolution: Update service reference"]
         
-        MISCFG8["❌ DUPLICATE/CONFLICTING RULES<br/>Allow and Block rules both match<br/>Result: Undefined behavior<br/>Resolution: Remove conflicting rule<br/>netsh advfirewall firewall delete rule name='rule_name'"]
+        MISCFG8["DUPLICATE or CONFLICTING RULES<br/>Allow and Block rules both match<br/>Result: Undefined behavior<br/>Resolution: Remove conflicting rule"]
     end
     
-    MISCONFIGS --> PROFILE_BEHAVIOR["PROFILE-SPECIFIC BEHAVIOR & LOGIC"]
+    MISCONFIGS --> PROFILE_BEHAVIOR["PROFILE-SPECIFIC BEHAVIOR and LOGIC"]
     
     subgraph ProfileLogic["Network Profile Application"]
-        PROFILE_DOMAIN["DOMAIN PROFILE<br/>Trigger: System joined to AD domain<br/>GPO Rules: Override local settings<br/>Default behavior: More permissive<br/>Application: When authenticated to domain<br/>Rule merging: GPO + Local (GPO wins on conflict)"]
+        PROFILE_DOMAIN["DOMAIN PROFILE<br/>Trigger: System joined to AD domain<br/>GPO Rules: Override local settings<br/>Default behavior: More permissive<br/>Application: When authenticated to domain<br/>Rule merging: GPO plus Local: GPO wins on conflict"]
         
-        PROFILE_PRIVATE["PRIVATE PROFILE<br/>Trigger: Connected to trusted network<br/>Local admin control: Enabled<br/>Default behavior: Medium restrictive<br/>Application: Recognized networks<br/>Rule merging: Allow + Block (Block wins)"]
+        PROFILE_PRIVATE["PRIVATE PROFILE<br/>Trigger: Connected to trusted network<br/>Local admin control: Enabled<br/>Default behavior: Medium restrictive<br/>Application: Recognized networks<br/>Rule merging: Allow plus Block: Block wins"]
         
-        PROFILE_PUBLIC["PUBLIC PROFILE<br/>Trigger: Untrusted/unknown network<br/>Local admin control: Limited<br/>Default behavior: Most restrictive<br/>Application: Unknown networks/hotel WiFi<br/>Rule merging: Allow + Block (Block wins)<br/>RDP blocked by default in Public profile"]
+        PROFILE_PUBLIC["PUBLIC PROFILE<br/>Trigger: Untrusted or unknown network<br/>Local admin control: Limited<br/>Default behavior: Most restrictive<br/>Application: Unknown networks or hotel WiFi<br/>Rule merging: Allow plus Block: Block wins<br/>RDP blocked by default in Public profile"]
         
-        PROFILE_MULTIAPPLY["MULTIPLE PROFILE MATCHING<br/>Scenario: Rule applies to Domain + Private<br/>Network profile: Currently Private<br/>Application: Rule applies (matched)<br/>Logic: If ANY profile matches → apply rule<br/>Exception: Block rules override Allow"]
+        PROFILE_MULTIAPPLY["MULTIPLE PROFILE MATCHING<br/>Scenario: Rule applies to Domain plus Private<br/>Network profile: Currently Private<br/>Application: Rule applies: matched<br/>Logic: If ANY profile matches equals apply rule<br/>Exception: Block rules override Allow"]
     end
     
     PROFILE_BEHAVIOR --> ADVANCED_FEATURES["ADVANCED FIREWALL FEATURES"]
     
-    subgraph AdvancedFeat["Enterprise & Complex Scenarios"]
-        IPSEC["IPSec INTEGRATION<br/>- IPSec rules protect RDP traffic<br/>- Authentication headers (AH)<br/>- Encapsulating Security Payload (ESP)<br/>- Tunnel vs. Transport mode<br/>- Requires IKE port 500, ESP protocol 50<br/>- Mutual authentication required"]
+    subgraph AdvancedFeat["Enterprise and Complex Scenarios"]
+        IPSEC["IPSec INTEGRATION<br/>- IPSec rules protect RDP traffic<br/>- Authentication headers: AH<br/>- Encapsulating Security Payload: ESP<br/>- Tunnel vs. Transport mode<br/>- Requires IKE port 500, ESP protocol 50<br/>- Mutual authentication required"]
         
-        SERVICE_ISO["SERVICE ISOLATION<br/>- Restricted services mode<br/>- Only designated services can access port<br/>- DCOM+ Object Access auditing<br/>- RPC endpoint mapper queries<br/>- Port 135 (RPC endpoint mapper)<br/>- Dynamic RPC port assignment (1024-65535)"]
+        SERVICE_ISO["SERVICE ISOLATION<br/>- Restricted services mode<br/>- Only designated services can access port<br/>- DCOM plus Object Access auditing<br/>- RPC endpoint mapper queries<br/>- Port 135: RPC endpoint mapper<br/>- Dynamic RPC port assignment: 1024-65535"]
         
         AUTHED_BYPASS["AUTHENTICATED BYPASS<br/>- Exemption for authenticated users<br/>- Active Directory credential verification<br/>- Kerberos mutual authentication<br/>- Applied before traffic filtering<br/>- KEYTAB file requirement"]
         
-        RPC_HANDLING["RPC ENDPOINT MAPPER RULES<br/>- Port 135 (RPC endpoint mapper)<br/>- Port 445 (SMB for named pipes)<br/>- Dynamic RPC ports (assigned range)<br/>- Remote Procedure Call Service<br/>- TermService RPC registration<br/>- RDS Session Broker queries"]
+        RPC_HANDLING["RPC ENDPOINT MAPPER RULES<br/>- Port 135: RPC endpoint mapper<br/>- Port 445: SMB for named pipes<br/>- Dynamic RPC ports: assigned range<br/>- Remote Procedure Call Service<br/>- TermService RPC registration<br/>- RDS Session Broker queries"]
         
-        RD_GATEWAY["RD GATEWAY RULES<br/>- Port 443 (HTTPS tunneling)<br/>- RPC over HTTPS transport<br/>- SSL/TLS encryption mandatory<br/>- Certificate validation<br/>- Proxy authentication integration<br/>- Transparent proxy for 3389 redirection"]
+        RD_GATEWAY["RD GATEWAY RULES<br/>- Port 443: HTTPS tunneling<br/>- RPC over HTTPS transport<br/>- SSL or TLS encryption mandatory<br/>- Certificate validation<br/>- Proxy authentication integration<br/>- Transparent proxy for 3389 redirection"]
         
         REMOTEAPP_PORTS["REMOTEAPP STREAMING PORTS<br/>- HTTP streaming: Port 80<br/>- HTTPS streaming: Port 443<br/>- Dynamic port range: 5000-6000<br/>- Web Access server rules<br/>- Separate from 3389 RDP rules<br/>- Browser plugin requirements"]
     end
@@ -7441,50 +7441,50 @@ graph TD
         
         T1 -->|Yes| T2{"Firewall rule<br/>exists?<br/>netsh advfirewall<br/>firewall show rule"}
         
-        T2 -->|No| T2A["❌ RULE MISSING<br/>Add rule:<br/>netsh advfirewall firewall<br/>add rule name='RDP'<br/>protocol=tcp<br/>dir=in<br/>localport=3389<br/>action=allow"]
+        T2 -->|No| T2A["RULE MISSING<br/>Add rule:<br/>netsh advfirewall firewall<br/>add rule name equals RDP<br/>protocol equals tcp<br/>dir equals in<br/>localport equals 3389<br/>action equals allow"]
         
-        T2 -->|Yes| T3{"Rule<br/>Enabled=True?"}
+        T2 -->|Yes| T3{"Rule<br/>Enabled equals True?"}
         
-        T3 -->|No| T3A["❌ RULE DISABLED<br/>Enable rule:<br/>Enable-NetFirewallRule<br/>-Name 'RemoteDesktop-UserMode-In-TCP'"]
+        T3 -->|No| T3A["RULE DISABLED<br/>Enable rule:<br/>Enable-NetFirewallRule<br/>-Name RemoteDesktop-UserMode-In-TCP"]
         
-        T3 -->|Yes| T4{"Action=Allow?"}
+        T3 -->|Yes| T4{"Action equals Allow?"}
         
-        T4 -->|No| T4A["❌ RULE ACTION BLOCK<br/>Change to Allow:<br/>Set-NetFirewallRule<br/>-Action Allow"]
+        T4 -->|No| T4A["RULE ACTION BLOCK<br/>Change to Allow:<br/>Set-NetFirewallRule<br/>-Action Allow"]
         
         T4 -->|Yes| T5{"Profile scope<br/>includes current?<br/>Get current profile:<br/>Get-NetConnectionProfile"]
         
-        T5 -->|No| T5A["❌ PROFILE MISMATCH<br/>Add profile:<br/>Set-NetFirewallRule<br/>-Profile Domain,Private"]
+        T5 -->|No| T5A["PROFILE MISMATCH<br/>Add profile:<br/>Set-NetFirewallRule<br/>-Profile Domain,Private"]
         
-        T5 -->|Yes| T6{"Port 3389<br/>actually listening?<br/>netstat -ano<br/>| grep 3389"]
+        T5 -->|Yes| T6{"Port 3389<br/>actually listening?<br/>netstat -ano<br/>grep 3389"]
         
-        T6 -->|No| T6A["✋ PORT NOT LISTENING<br/>Issue is NOT firewall<br/>Check: termdd.sys, TermService<br/>See: Service Dependency Chain"]
+        T6 -->|No| T6A["PORT NOT LISTENING<br/>Issue is NOT firewall<br/>Check: termdd.sys, TermService<br/>See: Service Dependency Chain"]
         
-        T6 -->|Yes| T7{"Connection hangs<br/>at authentication<br/>30+ seconds?"}
+        T6 -->|Yes| T7{"Connection hangs<br/>at authentication<br/>30 plus seconds?"}
         
-        T7 -->|Yes| T7A["🔍 RPC PORT 135 BLOCKED<br/>Check port 135 firewall rules<br/>netsh advfirewall firewall<br/>show rule | grep 135<br/>Resolution: Enable RPC rules<br/>or open port 135"]
+        T7 -->|Yes| T7A["RPC PORT 135 BLOCKED<br/>Check port 135 firewall rules<br/>netsh advfirewall firewall<br/>show rule grep 135<br/>Resolution: Enable RPC rules"]
         
-        T7 -->|No| T8{"UDP transport<br/>fails but TCP<br/>works RDP 8.0+?"}
+        T7 -->|No| T8{"UDP transport<br/>fails but TCP<br/>works RDP 8.0 plus?"}
         
-        T8 -->|Yes| T8A["❌ UDP RULE MISSING<br/>Add UDP rule:<br/>netsh advfirewall firewall<br/>add rule name='RDP-UDP'<br/>protocol=udp<br/>dir=in<br/>localport=3389<br/>action=allow"]
+        T8 -->|Yes| T8A["UDP RULE MISSING<br/>Add UDP rule:<br/>netsh advfirewall firewall<br/>add rule name equals RDP-UDP<br/>protocol equals udp<br/>dir equals in<br/>localport equals 3389<br/>action equals allow"]
         
-        T8 -->|No| T9["✅ FIREWALL OK<br/>Issue elsewhere<br/>Check: Encryption mismatch<br/>NLA requirements<br/>RD Gateway config"]
+        T8 -->|No| T9["FIREWALL OK<br/>Issue elsewhere<br/>Check: Encryption mismatch<br/>NLA requirements"]
     end
     
-    TROUBLESHOOT --> SUMMARY["DIAGNOSTIC SUMMARY & CHECKLIST"]
+    TROUBLESHOOT --> SUMMARY["DIAGNOSTIC SUMMARY and CHECKLIST"]
     
     subgraph ChecklistSummary["RDP Firewall Verification Checklist"]
-        CK1["☑️ Rule exists: RemoteDesktop-UserMode-In-TCP"]
-        CK2["☑️ Rule enabled: Enabled=True"]
-        CK3["☑️ Rule action: Allow"]
-        CK4["☑️ Rule direction: Inbound"]
-        CK5["☑️ Rule protocol: TCP"]
-        CK6["☑️ Rule port: 3389"]
-        CK7["☑️ Rule profile includes current network"]
-        CK8["☑️ Port 3389 listening (netstat -ano)"]
-        CK9["☑️ No conflicting Block rules"]
-        CK10["☑️ If Windows 11/2022+: RPC port 135 open"]
-        CK11["☑️ If RDP 8.0+: UDP rule exists"]
-        CK12["☑️ If behind RD Gateway: Port 443 open"]
+        CK1["Rule exists: RemoteDesktop-UserMode-In-TCP"]
+        CK2["Rule enabled: Enabled equals True"]
+        CK3["Rule action: Allow"]
+        CK4["Rule direction: Inbound"]
+        CK5["Rule protocol: TCP"]
+        CK6["Rule port: 3389"]
+        CK7["Rule profile includes current network"]
+        CK8["Port 3389 listening: netstat -ano"]
+        CK9["No conflicting Block rules"]
+        CK10["If Windows 11 or 2022 plus: RPC port 135 open"]
+        CK11["If RDP 8.0 plus: UDP rule exists"]
+        CK12["If behind RD Gateway: Port 443 open"]
     end
     
     %% Styling
