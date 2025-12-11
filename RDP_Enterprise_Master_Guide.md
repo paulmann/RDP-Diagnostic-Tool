@@ -180,39 +180,14 @@ The Remote Desktop Protocol (RDP) represents one of the most transformative and 
 
 #### 1.1.1 Historical Context and Modern Evolution
 
-```mermaid
-timeline
-    title RDP Evolution Timeline: From Terminal Services to Enterprise Platform
-    section 1998-2000: Foundation Era
-        Windows NT 4.0 TS : Initial RDP 4.0 release
-        Basic Remote Access : Terminal server capabilities
-        Limited Graphics : 256-color support
-    section 2001-2005: Enterprise Adoption
-        Windows 2000/2003 : RDP 5.0-5.2 enhancements
-        Network Load Balancing : Scalability improvements
-        TS Gateway : Secure external access
-        Session Directory : Connection brokering
-    section 2006-2012: Virtualization Era
-        Windows 2008/2008 R2 : RDP 6.0-7.0
-        RemoteFX : Advanced graphics & multimedia
-        VDI Integration : Hyper-V integration
-        USB Redirection : Peripheral support
-    section 2012-2016: Cloud Transition
-        Windows 2012/2012 R2 : RDP 8.0-8.1
-        Azure Integration : Hybrid cloud capabilities
-        RemoteApp Publishing : Application virtualization
-        Multimonitor Support : Enhanced UX
-    section 2016-2020: Modern Workplace
-        Windows 2016/2019 : RDP 10.0
-        Security Focus : Credential Guard, Device Guard
-        Graphics Acceleration : GPU partitioning
-        Container Support : Application isolation
-    section 2021-Present: Intelligent Edge
-        Windows 2022/11 : RDP 10.7+
-        AI/ML Integration : Predictive analytics
-        Zero Trust Architecture : Enhanced security
-        Cloud-Native RDP : Azure Virtual Desktop
-```
+| Era | Time Period | Key Developments |
+|-----|-------------|------------------|
+| **Foundation Era** | 1998-2000 | Windows NT 4.0 TS, Basic Remote Access, 256-color support |
+| **Enterprise Adoption** | 2001-2005 | RDP 5.0-5.2, Network Load Balancing, TS Gateway, Session Directory |
+| **Virtualization Era** | 2006-2012 | RDP 6.0-7.0, RemoteFX, VDI Integration, USB Redirection |
+| **Cloud Transition** | 2012-2016 | RDP 8.0-8.1, Azure Integration, RemoteApp, Multimonitor support |
+| **Modern Workplace** | 2016-2020 | RDP 10.0, Security Focus, GPU Acceleration, Container Support |
+| **Intelligent Edge** | 2021-Present | RDP 10.7+, AI/ML Integration, Zero Trust, Cloud-Native RDP |
 
 **Architectural Significance:** RDP's evolution mirrors the broader transformation of enterprise computing—from centralized mainframes to distributed client-server architectures, through virtualization, cloud computing, and now to edge computing and hybrid work models. Each iteration has addressed critical business needs while introducing new layers of complexity that demand sophisticated management approaches.
 
