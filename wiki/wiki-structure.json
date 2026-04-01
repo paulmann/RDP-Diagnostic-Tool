@@ -1,0 +1,28 @@
+{
+  "name": "RDP-Diagnostic-Tool Wiki",
+  "version": "1.0.0",
+  "lastUpdated": "2026-04-01",
+  "maintainer": {
+    "name": "Mikhail Deynekin",
+    "email": "mid1977@gmail.com",
+    "website": "https://deynekin.com"
+  },
+  "pages": [
+    { "id": "home", "file": "Home.md", "title": "Home", "order": 1, "category": "root" },
+    { "id": "installation", "file": "Installation.md", "title": "Installation", "order": 2, "category": "getting-started" },
+    { "id": "configuration", "file": "Configuration.md", "title": "Configuration", "order": 3, "category": "getting-started" },
+    { "id": "usage", "file": "Usage.md", "title": "Usage", "order": 4, "category": "getting-started" },
+    { "id": "architecture", "file": "Architecture.md", "title": "Architecture", "order": 5, "category": "reference" },
+    { "id": "troubleshooting", "file": "Troubleshooting.md", "title": "Troubleshooting", "order": 6, "category": "reference" },
+    { "id": "advanced-diagnostics", "file": "Advanced-Diagnostics.md", "title": "Advanced Diagnostics", "order": 7, "category": "reference" },
+    { "id": "security", "file": "Security.md", "title": "Security", "order": 8, "category": "enterprise" },
+    { "id": "performance", "file": "Performance.md", "title": "Performance", "order": 9, "category": "enterprise" },
+    { "id": "enhancement-roadmap", "file": "Enhancement-Roadmap.md", "title": "Enhancement Roadmap", "order": 10, "category": "enterprise" },
+    { "id": "contributing", "file": "Contributing.md", "title": "Contributing", "order": 11, "category": "project" },
+    { "id": "changelog", "file": "Changelog.md", "title": "Changelog", "order": 12, "category": "project" }
+  ],
+  "navigation": [
+    { "_Sidebar.md": "Persistent sidebar for all pages" },
+    { "_Footer.md": "Persistent footer for all pages" }
+  ]
+}
