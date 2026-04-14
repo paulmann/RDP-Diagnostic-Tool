@@ -1,6 +1,6 @@
 # RDP Diagnostic & Remediation Tool
 
-[![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue?logo=powershell&logoColor=white)](https://docs.microsoft.com/en-us/powershell/)
+[![PowerShell](https://img.shields.io/badge/PowerShell-7%2B-blue?logo=powershell&logoColor=white)](https://docs.microsoft.com/en-us/powershell/)
 [![Windows](https://img.shields.io/badge/Windows-10%2F11-0078D4?logo=windows&logoColor=white)](https://www.microsoft.com/en-us/windows/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/Version-4.2.0-success.svg)](https://github.com/paulmann/RDP-Diagnostic-Tool/releases/tag/4.2.0)
@@ -91,7 +91,7 @@ The **RDP Diagnostic & Remediation Tool** provides:
 | Requirement | Specification |
 |-------------|---|
 | **Operating System** | Windows 10/11 Pro, Enterprise, Education, or Server 2016+ |
-| **PowerShell** | 5.1 or higher (built into Windows 10/11) |
+| **PowerShell** | 7.0 or higher (built into Windows 10/11) |
 | **Administrator Rights** | Required to read configuration and apply remediation |
 | **Disk Space** | Minimal (< 1 MB for script and reports) |
 | **RAM** | Minimal (diagnostic process uses < 50 MB) |
