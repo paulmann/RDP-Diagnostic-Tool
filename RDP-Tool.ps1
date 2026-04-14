@@ -83,6 +83,9 @@ param(
    [switch]$Help
 )
 
+#Requires -Version 7.0
+#Requires -PSEdition Core
+
 # Show help if no parameters or help requested
 if ($Help -or ($PSBoundParameters.Count -eq 0)) {
     @"
