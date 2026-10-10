@@ -1,4 +1,4 @@
-<!-- Last Updated: 2026-10-09 | Version: 5.0.0 -->
+<!-- Last Updated: 2026-10-10 | Version: 5.0.1 -->
 
 # Contributing
 

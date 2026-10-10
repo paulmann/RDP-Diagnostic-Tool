@@ -201,7 +201,7 @@
 .NOTES
     Tool:        RDP Diagnostic & Remediation Tool (RDP-Tool.ps1)
     Author:      Mikhail Deynekin [ Deynekin.com ]
-    Version:     5.0.0 (2026-10-09)
+    Version:     5.0.1 (2026-10-10)
     Requires:    Windows 10/11 or Windows Server 2016+; PowerShell 7+;
                  administrator rights for any change (read-only mode works unelevated).
     Repository:  https://github.com/paulmann/RDP-Diagnostic-Tool
@@ -232,7 +232,7 @@
 #>
 
 # ============================================================================
-#  RDP Diagnostic & Remediation Tool - v5.0.0
+#  RDP Diagnostic & Remediation Tool - v5.0.1
 #  (c) Mikhail Deynekin [ Deynekin.com ] - MIT License
 # ============================================================================
 
@@ -334,8 +334,8 @@ if ($Force) {
 # change the literal format of the assignment below.
 # ============================================================================
 $script:ToolName = 'RDP Diagnostic & Remediation Tool'
-$script:ToolVersion = [version]'5.0.0'
-$script:ToolReleaseDate = '2026-10-09'
+$script:ToolVersion = [version]'5.0.1'
+$script:ToolReleaseDate = '2026-10-10'
 $script:ToolFileName = 'RDP-Tool.ps1'
 $script:ToolAuthor = 'Mikhail Deynekin [ Deynekin.com ]'
 $script:ToolRepo = 'paulmann/RDP-Diagnostic-Tool'
@@ -1136,6 +1136,37 @@ function Get-RemoteToolVersion {
     }
 }
 
+function ConvertTo-ScriptText {
+    <#
+    .SYNOPSIS
+        Normalizes downloaded payloads to a script string.
+    .DESCRIPTION
+        GitHub serves release assets as application/octet-stream, so in PowerShell 7
+        Invoke-WebRequest returns .Content as [byte[]] instead of [string]. Passing that
+        byte array to the [string] parameters of the version parser and the validator
+        raises a binding error, which aborted -Update with an unhandled script error.
+        This converts either shape to text, decodes it as UTF-8 and strips a leading
+        byte-order mark (the file is written back with a BOM, so keeping the decoded
+        U+FEFF would produce a double mark).
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] $Content
+    )
+
+    if ($Content -is [byte[]]) {
+        $bytes = $Content
+        if ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) {
+            $bytes = if ($bytes.Length -gt 3) { $bytes[3..($bytes.Length - 1)] } else { @() }
+        }
+        $text = [System.Text.Encoding]::UTF8.GetString($bytes)
+    } else {
+        $text = [string]$Content
+    }
+
+    return $text.TrimStart([char]0xFEFF)
+}
+
 function Get-VersionFromScriptContent {
     <#
     .SYNOPSIS
@@ -1188,8 +1219,8 @@ function Invoke-UpdateCheck {
         # Fetch the file to read its version marker.
         try {
             Write-Verbose "Downloading remote script for version probe: $($remote.DownloadUrl)"
-            $content = Invoke-WebRequest -Uri $remote.DownloadUrl -TimeoutSec 30 -UseBasicParsing -ErrorAction Stop |
-                       Select-Object -ExpandProperty Content
+            $probeResponse = Invoke-WebRequest -Uri $remote.DownloadUrl -TimeoutSec 30 -UseBasicParsing -ErrorAction Stop
+            $content = ConvertTo-ScriptText -Content $probeResponse.Content
             $remoteVersion = Get-VersionFromScriptContent -Content $content
         } catch {
             New-DiagnosticResult -Component 'Update Check' -Status 'UNREACHABLE' `
@@ -1300,7 +1331,7 @@ function Invoke-ToolSelfUpdate {
     $content = $null
     try {
         $response = Invoke-WebRequest -Uri $remote.DownloadUrl -TimeoutSec 60 -UseBasicParsing -ErrorAction Stop
-        $content = $response.Content
+        $content = ConvertTo-ScriptText -Content $response.Content
     } catch {
         New-DiagnosticResult -Component 'Self-Update' -Status 'DOWNLOAD FAILED' `
             -Details $_.Exception.Message `

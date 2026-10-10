@@ -1,9 +1,9 @@
-<!-- Last Updated: 2026-10-09 | Version: 5.0.0 -->
+<!-- Last Updated: 2026-10-10 | Version: 5.0.1 -->
 <!-- Schema.org: SoftwareApplication, TechArticle -->
 
 # RDP Diagnostic Tool
 
-![Version](https://img.shields.io/badge/version-5.0.0-blue?style=flat-square)
+![Version](https://img.shields.io/badge/version-5.0.1-blue?style=flat-square)
 ![PowerShell](https://img.shields.io/badge/PowerShell-7%2B-5391FE?style=flat-square&logo=powershell)
 ![Windows](https://img.shields.io/badge/Windows-10%2F11%20%7C%20Server-0078D4?style=flat-square&logo=windows)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)

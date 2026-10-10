@@ -1,6 +1,6 @@
 {
   "name": "rdp-diagnostic-tool",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Comprehensive RDP diagnostic and remediation tool for Windows 10/11 and Windows Server: full health check, protocol-level RDP handshake probe, live sessions, JSON/HTML reports and safe remediation behind -WhatIf.",
   "keywords": [
     "rdp",

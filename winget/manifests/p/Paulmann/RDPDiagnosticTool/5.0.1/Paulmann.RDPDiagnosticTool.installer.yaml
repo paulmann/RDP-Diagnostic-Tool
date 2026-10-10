@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.6.0.schema.json
 PackageIdentifier: Paulmann.RDPDiagnosticTool
-PackageVersion: 5.0.0
+PackageVersion: 5.0.1
 Platform:
   - Windows.Desktop
 MinimumOSVersion: 10.0.17763.0
@@ -18,7 +18,7 @@ Commands:
   - rdp-tool
 Installers:
   - Architecture: x64
-    InstallerUrl: https://github.com/paulmann/RDP-Diagnostic-Tool/releases/download/5.0.0/RDP-Diagnostic-Tool-5.0.0.zip
-    InstallerSha256: 059CC76F966C6465BCC251AFA66D319286A93C82DEC8DB21E840C96309E39F48
+    InstallerUrl: https://github.com/paulmann/RDP-Diagnostic-Tool/releases/download/5.0.1/RDP-Diagnostic-Tool-5.0.1.zip
+    InstallerSha256: F635A7850BFB245F633A2A6F6A8615CF04A2DED2B5ABCFA21A4802D4B9BAE41A
 ManifestType: installer
 ManifestVersion: 1.6.0

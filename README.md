@@ -4,7 +4,7 @@
 [![Windows](https://img.shields.io/badge/Windows-10%2F11%20%7C%20Server-0078D4?logo=windows&logoColor=white)](https://www.microsoft.com/en-us/windows/)
 [![CI](https://github.com/paulmann/RDP-Diagnostic-Tool/actions/workflows/ci.yml/badge.svg)](https://github.com/paulmann/RDP-Diagnostic-Tool/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/paulmann/RDP-Diagnostic-Tool/blob/main/LICENSE)
-[![Version](https://img.shields.io/badge/Version-5.0.0-success.svg)](https://github.com/paulmann/RDP-Diagnostic-Tool/releases/latest)
+[![Version](https://img.shields.io/badge/Version-5.0.1-success.svg)](https://github.com/paulmann/RDP-Diagnostic-Tool/releases/latest)
 [![npm](https://img.shields.io/npm/v/rdp-diagnostic-tool.svg?logo=npm)](https://www.npmjs.com/package/rdp-diagnostic-tool)
 [![npm downloads](https://img.shields.io/npm/dm/rdp-diagnostic-tool.svg)](https://www.npmjs.com/package/rdp-diagnostic-tool)
 [![winget](https://img.shields.io/badge/winget-Paulmann.RDPDiagnosticTool-0078D4)](https://github.com/paulmann/RDP-Diagnostic-Tool/tree/main/winget)
@@ -78,7 +78,7 @@ Any one channel is enough - every channel ships the **same** `RDP-Tool.ps1`.
 
 | Channel | Command | Requires |
 |---|---|---|
-| **npm** (one-off) | `npx rdp-diagnostic-tool@5.0.0 -Version` | Node.js 18+ |
+| **npm** (one-off) | `npx rdp-diagnostic-tool@5.0.1 -Version` | Node.js 18+ |
 | **npm** (permanent) | `npm i -g rdp-diagnostic-tool`, then `rdp-tool` | Node.js 18+ |
 | **Direct download** | `RDP-Tool.ps1` from the [latest release](https://github.com/paulmann/RDP-Diagnostic-Tool/releases/latest), then `Unblock-File .\RDP-Tool.ps1` | PowerShell 7 only |
 | **Git clone** | `git clone https://github.com/paulmann/RDP-Diagnostic-Tool` | git |

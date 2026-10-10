@@ -19,7 +19,7 @@ The launcher looks for `pwsh.exe` in `%ProgramFiles%\PowerShell\7\`, then on `PA
 
 ```powershell
 # try it without installing anything
-npx rdp-diagnostic-tool@5.0.0 -Version
+npx rdp-diagnostic-tool@5.0.1 -Version
 
 # permanent install: puts rdp-tool (and rdp-diagnostic-tool) on PATH
 npm install -g rdp-diagnostic-tool
@@ -119,5 +119,5 @@ repository `paulmann/RDP-Diagnostic-Tool`, workflow filename), then publish from
 workflow that declares `id-token` write permission. This needs npm CLI 11.5.1+ and
 Node 22.14+ and produces a provenance attestation automatically.
 
-> Published versions are immutable: a mistake in `5.0.0` cannot be fixed in place,
+> Published versions are immutable: a mistake in `5.0.1` cannot be fixed in place,
 > only superseded by `5.0.1`.

@@ -1,10 +1,10 @@
 {
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Diagnose, repair and verify Remote Desktop (RDP) on Windows (requires PowerShell 7)",
   "homepage": "https://github.com/paulmann/RDP-Diagnostic-Tool",
   "license": "MIT",
-  "url": "https://github.com/paulmann/RDP-Diagnostic-Tool/releases/download/5.0.0/RDP-Diagnostic-Tool-5.0.0.zip",
-  "hash": "059cc76f966c6465bcc251afa66d319286a93c82dec8db21e840c96309e39f48",
+  "url": "https://github.com/paulmann/RDP-Diagnostic-Tool/releases/download/5.0.1/RDP-Diagnostic-Tool-5.0.1.zip",
+  "hash": "f635a7850bfb245f633a2a6f6a8615cf04a2ded2b5abcfa21a4802d4b9bae41a",
   "bin": [
     [
       "rdp-tool.exe",
@@ -15,9 +15,9 @@
     "github": "https://github.com/paulmann/RDP-Diagnostic-Tool"
   },
   "autoupdate": {
+    "url": "https://github.com/paulmann/RDP-Diagnostic-Tool/releases/download/$version/RDP-Diagnostic-Tool-$version.zip",
     "hash": {
-      "url": "https://github.com/paulmann/RDP-Diagnostic-Tool/releases/download/5.0.0/SHA256SUMS.txt"
-    },
-    "url": "https://github.com/paulmann/RDP-Diagnostic-Tool/releases/download/$version/RDP-Diagnostic-Tool-$version.zip"
+      "url": "https://github.com/paulmann/RDP-Diagnostic-Tool/releases/download/5.0.1/SHA256SUMS.txt"
+    }
   }
 }

@@ -79,7 +79,37 @@ if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $exePath)) {
 $zipName = "RDP-Diagnostic-Tool-$version.zip"
 $zipPath = Join-Path $OutDir $zipName
 $exePathInStage = Join-Path $stage 'rdp-tool.exe'
-Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zipPath -CompressionLevel Optimal
+
+# Build the ZIP through ZipArchive with fixed entry timestamps instead of
+# Compress-Archive, which stamps the current time into every entry. This makes the archive
+# depend only on its contents. The archive is still NOT bit-reproducible: the in-box C# 5
+# compiler has no /deterministic switch and embeds a fresh module GUID into each launcher
+# build (~49 bytes), so every build of rdp-tool.exe differs. The hash that consumers check
+# is therefore taken from the uploaded asset by sync-release-hashes.ps1, never from a
+# local rebuild.
+$fixedTime = [datetimeoffset]::Parse('2026-01-01T00:00:00Z')
+$zipStream = [IO.File]::Open($zipPath, [IO.FileMode]::Create, [IO.FileAccess]::Write)
+try {
+    $archive = [System.IO.Compression.ZipArchive]::new($zipStream, [System.IO.Compression.ZipArchiveMode]::Create, $true)
+    try {
+        foreach ($file in Get-ChildItem -LiteralPath $stage -File | Sort-Object Name) {
+            $entry = $archive.CreateEntry($file.Name, [System.IO.Compression.CompressionLevel]::Optimal)
+            $entry.LastWriteTime = $fixedTime
+            $source = $file.OpenRead()
+            $entryStream = $entry.Open()
+            try {
+                $source.CopyTo($entryStream)
+            } finally {
+                $entryStream.Dispose()
+                $source.Dispose()
+            }
+        }
+    } finally {
+        $archive.Dispose()
+    }
+} finally {
+    $zipStream.Dispose()
+}
 Remove-Item -LiteralPath $stage -Recurse -Force
 
 Copy-Item -LiteralPath $scriptPath -Destination (Join-Path $OutDir 'RDP-Tool.ps1')

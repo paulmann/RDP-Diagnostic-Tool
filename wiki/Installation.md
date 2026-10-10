@@ -1,4 +1,4 @@
-<!-- Last Updated: 2026-10-09 | Version: 5.0.0 -->
+<!-- Last Updated: 2026-10-10 | Version: 5.0.1 -->
 
 # Installation
 
@@ -50,7 +50,7 @@ The same `RDP-Tool.ps1` is published to npm as `rdp-diagnostic-tool`. It is the
 script plus a launcher that resolves `pwsh` and forwards the tool's exit codes.
 
 ```powershell
-npx rdp-diagnostic-tool@5.0.0 -Version     # try without installing
+npx rdp-diagnostic-tool@5.0.1 -Version     # try without installing
 npm install -g rdp-diagnostic-tool          # permanent: rdp-tool on PATH
 rdp-tool                                    # full read-only audit
 ```

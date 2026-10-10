@@ -84,4 +84,4 @@ if ($LASTEXITCODE -ne 0) { throw "gh release create failed with exit code $LASTE
 
 "release : $version"
 "assets  : $($assets.Count)"
-& gh release view $version --json tagName,isLatest,assets --jq 'tag={{.tagName}} latest={{.isLatest}} assets={{.assets | length}}'
+& gh release view $version --json tagName,isDraft,isPrerelease,assets --jq 'tag={{.tagName}} draft={{.isDraft}} prerelease={{.isPrerelease}} assets={{.assets | length}}'

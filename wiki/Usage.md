@@ -1,10 +1,10 @@
-<!-- Last Updated: 2026-10-09 | Version: 5.0.0 -->
+<!-- Last Updated: 2026-10-10 | Version: 5.0.1 -->
 
 # Usage
 
 [[Home]] › Usage
 
-This page documents the **actual v5.0.0 CLI** of `RDP-Tool.ps1`: modes, actions, probes, reporting and exit codes.
+This page documents the **actual v5.0.1 CLI** of `RDP-Tool.ps1`: modes, actions, probes, reporting and exit codes.
 
 ---
 

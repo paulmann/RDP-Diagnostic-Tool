@@ -229,7 +229,7 @@ Describe 'Windows edition support matrix' {
 
 Describe 'Update engine' {
     It 'Parses the embedded version marker from real script content' {
-        Get-VersionFromScriptContent -Content $script:ToolContent | Should -Be ([version]'5.0.0')
+        Get-VersionFromScriptContent -Content $script:ToolContent | Should -Be ([version]'5.0.1')
     }
 
     It 'Returns $null for content without a marker' {
@@ -239,6 +239,22 @@ Describe 'Update engine' {
     It 'Accepts the current script as a valid download' {
         Test-DownloadedScriptIsValid -Content $script:ToolContent | Should -BeNullOrEmpty
         Test-DownloadedScriptIsValid -Content $script:ToolContent -ExpectedVersion $script:ToolVersion | Should -BeNullOrEmpty
+    }
+
+    It 'Handles the byte[] payload GitHub serves for release assets' {
+        # Regression: release assets come back as application/octet-stream, so
+        # Invoke-WebRequest yields .Content as [byte[]]. Passing it straight to the
+        # [string] parameters failed with "Cannot convert value to type System.String"
+        # and aborted -Update with exit code 99.
+        $bytes = [System.IO.File]::ReadAllBytes($script:ToolPath)
+        $normalized = ConvertTo-ScriptText -Content $bytes
+        $normalized | Should -BeOfType [string]
+        ($normalized -split "`n")[0] | Should -Not -BeLike "*$([char]0xFEFF)*"
+        Get-VersionFromScriptContent -Content $normalized | Should -Be ([version]'5.0.1')
+        Test-DownloadedScriptIsValid -Content $normalized -ExpectedVersion $script:ToolVersion | Should -BeNullOrEmpty
+
+        $withoutBom = [byte[]]($bytes[3..($bytes.Length - 1)])
+        Get-VersionFromScriptContent -Content (ConvertTo-ScriptText -Content $withoutBom) | Should -Be ([version]'5.0.1')
     }
 
     It 'Rejects empty, tiny and HTML payloads' {

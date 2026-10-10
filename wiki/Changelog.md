@@ -1,4 +1,4 @@
-<!-- Last Updated: 2026-10-09 | Version: 5.0.0 -->
+<!-- Last Updated: 2026-10-10 | Version: 5.0.1 -->
 
 # Changelog
 
@@ -8,6 +8,14 @@ The **authoritative changelog** lives in the repository: [CHANGELOG.md](https://
 This page is a short orientation summary.
 
 ---
+
+## [5.0.1] — 2026-10-10 · Self-update fix
+
+- **`-Update` aborted with exit code 99.** GitHub serves release assets as
+  `application/octet-stream`, so PowerShell 7's `Invoke-WebRequest` returns `.Content`
+  as a byte array; the validator expected a string and the update stopped mid-flight.
+  Payloads are now normalized (UTF-8 decode, single BOM on write), the same helper
+  covers the raw-file version probe, and a regression test pins the byte-array path.
 
 ## [5.0.0] — 2026-10-09 · Major production refactor
 

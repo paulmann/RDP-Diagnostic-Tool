@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [5.0.1] - 2026-10-10
+
+> **Self-update fix.** `-Update` was broken for every release published so far.
+
+### Fixed
+- **`-Update` aborted with an unhandled script error (exit code 99).** GitHub serves
+  release assets as `application/octet-stream`, so in PowerShell 7
+  `Invoke-WebRequest` returns `.Content` as `[byte[]]` instead of `[string]`. The
+  validation step took a `[string]` parameter, so passing the raw byte array raised
+  "Cannot process argument transformation on parameter 'Content'" and the update
+  stopped before the download was validated or written. `-CheckUpdate` was unaffected
+  because it reads the version from the releases API, not from the payload.
+- Download payloads are now normalized through `ConvertTo-ScriptText`: byte arrays
+  are decoded as UTF-8 and a leading byte-order mark is stripped, so the file written
+  back carries exactly one BOM. The same helper is used for the version probe
+  (raw-file fallback), which had the same latent defect.
+- Covered by a regression test that feeds the byte-array shape of a real release
+  asset through the version parser and the validator.
+
 ## [5.0.0] - 2026-10-09
 
 > **Major refactor.** The tool was rewritten end-to-end for production use:

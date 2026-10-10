@@ -1,4 +1,4 @@
-<!-- Last Updated: 2026-10-09 | Version: 5.0.0 -->
+<!-- Last Updated: 2026-10-10 | Version: 5.0.1 -->
 
 # Configuration
 
@@ -103,7 +103,7 @@ exit $LASTEXITCODE     # the management system records per-host results
 
 ```jsonc
 {
-  "tool": "...", "version": "5.0.0", "reportId": "A1B2C3D4",
+  "tool": "...", "version": "5.0.1", "reportId": "A1B2C3D4",
   "generatedUtc": "2026-10-09T12:00:00.000Z", "durationSec": 41.2,
   "computer": "WS-01",
   "systemInfo": { "Caption": "...", "EditionID": "...", "Build": "...", "RDPSupported": true, "...": "..." },
