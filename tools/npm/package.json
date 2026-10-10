@@ -37,7 +37,7 @@
     "rdp-diagnostic-tool": "bin/rdp-tool.mjs"
   },
   "scripts": {
-    "prepack": "node ../../tools/npm/check-npm-version.mjs ."
+    "prepack": "node ../../tools/npm/check-npm-version.mjs . && node ../../tools/npm/check-readme.mjs README.md"
   },
   "files": [
     "bin/",

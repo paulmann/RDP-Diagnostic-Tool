@@ -3,8 +3,11 @@
 [![PowerShell](https://img.shields.io/badge/PowerShell-7%2B-blue?logo=powershell&logoColor=white)](https://docs.microsoft.com/en-us/powershell/)
 [![Windows](https://img.shields.io/badge/Windows-10%2F11%20%7C%20Server-0078D4?logo=windows&logoColor=white)](https://www.microsoft.com/en-us/windows/)
 [![CI](https://github.com/paulmann/RDP-Diagnostic-Tool/actions/workflows/ci.yml/badge.svg)](https://github.com/paulmann/RDP-Diagnostic-Tool/actions/workflows/ci.yml)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/paulmann/RDP-Diagnostic-Tool/blob/main/LICENSE)
 [![Version](https://img.shields.io/badge/Version-5.0.0-success.svg)](https://github.com/paulmann/RDP-Diagnostic-Tool/releases/latest)
+[![npm](https://img.shields.io/npm/v/rdp-diagnostic-tool.svg?logo=npm)](https://www.npmjs.com/package/rdp-diagnostic-tool)
+[![npm downloads](https://img.shields.io/npm/dm/rdp-diagnostic-tool.svg)](https://www.npmjs.com/package/rdp-diagnostic-tool)
+[![winget](https://img.shields.io/badge/winget-Paulmann.RDPDiagnosticTool-0078D4)](https://github.com/paulmann/RDP-Diagnostic-Tool/tree/main/winget)
 
 **A comprehensive PowerShell-based diagnostic and remediation tool for Remote Desktop Protocol (RDP) connectivity on Windows 10/11 and Windows Server.** One script, zero dependencies: it audits every RDP-related subsystem, repairs what it finds, proves the RDP stack actually answers with a real protocol handshake, and exports HTML/JSON reports for humans and automation alike.
 
@@ -30,7 +33,7 @@
 
 ## What's new in v5
 
-v5.0.0 is a full production refactor of v4.2.0. Highlights (see [CHANGELOG.md](CHANGELOG.md) for the complete list):
+v5.0.0 is a full production refactor of v4.2.0. Highlights (see [CHANGELOG.md](https://github.com/paulmann/RDP-Diagnostic-Tool/blob/main/CHANGELOG.md) for the complete list):
 
 | Area | v5.0.0 |
 |---|---|
@@ -46,12 +49,16 @@ v5.0.0 is a full production refactor of v4.2.0. Highlights (see [CHANGELOG.md](C
 ## Quick Start
 
 ```powershell
-# 1) Get the tool (any method)
+# 1) Get the tool - npm channel (Node.js 18+)
+npx rdp-diagnostic-tool -Version          # try it without installing
+npm install -g rdp-diagnostic-tool        # permanent: rdp-tool on PATH
+
+#    ... or download RDP-Tool.ps1 from the latest Release, or:
 git clone https://github.com/paulmann/RDP-Diagnostic-Tool
-#    or download RDP-Tool.ps1 from the latest Release
 
 # 2) Audit this machine (read-only, works unelevated)
-pwsh -NoProfile -File .\RDP-Tool.ps1
+rdp-tool                                  # npm channel
+pwsh -NoProfile -File .\RDP-Tool.ps1       # script channel
 
 # 3) Enable + repair RDP end-to-end (elevated, no prompts)
 pwsh -NoProfile -File .\RDP-Tool.ps1 -EnableRDP -Force
@@ -86,7 +93,7 @@ rdp-tool -TestRdpTarget "srv01:3389"       # prove the listener really speaks RD
 rdp-tool -EnableRDP -Force                # elevated repair
 ```
 
-Self-update (`-CheckUpdate` / `-Update`) behaves identically on all channels: the script refreshes itself in place from GitHub Releases. npm-specific details: [docs/NPM.md](docs/NPM.md).
+Self-update (`-CheckUpdate` / `-Update`) behaves identically on all channels: the script refreshes itself in place from GitHub Releases. npm-specific details: [docs/NPM.md](https://github.com/paulmann/RDP-Diagnostic-Tool/blob/main/docs/NPM.md).
 
 ## Features
 
@@ -227,6 +234,32 @@ Server ──► X.224 Connection Confirm + Negotiation Response
              └─ or failure code: SSL_REQUIRED_BY_SERVER, HYBRID_REQUIRED_BY_SERVER, ...
 ```
 
+<details>
+<summary><b>What it looks like on the wire (click to expand)</b></summary>
+
+```
+$ rdp-tool -TestRdpTarget "srv01.contoso.com:3389"
+
+  ════════════════════════════════════════════════════════════════════════════
+  🔌  RDP PROTOCOL HANDSHAKE PROBE
+  ════════════════════════════════════════════════════════════════════════════
+
+  Target                : srv01.contoso.com:3389
+  TCP connect           : OK (18 ms)
+  X.224 CR sent         : 19 bytes (TLS | CredSSP requested)
+  mstshash cookie       : aG9zdFxcUkRQ     (from the calling account)
+
+  Server response       : X.224 Connection Confirm + RDP_NEG_RSP
+  Negotiated protocol   : CredSSP (NLA)     <- enforced on the wire
+  Certificate           : TLS handshake available (no auth attempted)
+  Registry / GPO says   : UserAuthentication=1  (matches the wire)
+
+  ✅  The RDP stack answers and requires Network Level Authentication.
+      No credentials were sent.
+```
+
+</details>
+
 This is the same negotiation `mstsc.exe` performs before authentication - **no
 credentials are sent or needed**. The probe:
 
@@ -300,6 +333,9 @@ if ($LASTEXITCODE -ge 1 -and $LASTEXITCODE -le 2) { throw "RDP misconfigured (ex
 
 ## Architecture & Design
 
+<details>
+<summary><b>Module map (click to expand)</b></summary>
+
 ```
 RDP-Tool.ps1 (single file, ~4300 lines, UTF-8 BOM, PowerShell 7+)
 │
@@ -317,6 +353,8 @@ RDP-Tool.ps1 (single file, ~4300 lines, UTF-8 BOM, PowerShell 7+)
 ├─ Reporting          HTML / JSON / console summary / exit-code mapping
 └─ Main               phase pipeline: prereqs → remediate → verify → report
 ```
+
+</details>
 
 Design rules the codebase follows:
 
@@ -344,7 +382,7 @@ Invoke-ScriptAnalyzer -Path .\RDP-Tool.ps1 -Settings .\ScriptAnalyzerSettings.ps
 Invoke-Pester .\tests -Output Detailed
 ```
 
-CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs on every push/PR:
+CI ([`.github/workflows/ci.yml`](https://github.com/paulmann/RDP-Diagnostic-Tool/blob/main/.github/workflows/ci.yml)) runs on every push/PR:
 syntax parse gate (Windows + Ubuntu), PSScriptAnalyzer gate (zero Error/Warning with project settings), and the Pester suite on `windows-latest` (integrity, help coverage, parameter surface, protocol codec, edition matrix, update validation, CLI behavior incl. exit codes).
 
 ## Releasing (Maintainers)
@@ -379,5 +417,5 @@ More: [wiki/Troubleshooting](https://github.com/paulmann/RDP-Diagnostic-Tool/wik
 
 - 📖 Wiki: <https://github.com/paulmann/RDP-Diagnostic-Tool/wiki>
 - 🐞 Issues: <https://github.com/paulmann/RDP-Diagnostic-Tool/issues> - attach an `-ExportReport` HTML and the `-LogPath` log
-- 📜 [Changelog](CHANGELOG.md) · [License (MIT)](LICENSE)
+- 📜 [Changelog](https://github.com/paulmann/RDP-Diagnostic-Tool/blob/main/CHANGELOG.md) · [License (MIT)](https://github.com/paulmann/RDP-Diagnostic-Tool/blob/main/LICENSE)
 - ✍️ Author: Mikhail Deynekin [ Deynekin.com ]
