@@ -59,7 +59,7 @@ if (-not $sha) {
     }
 }
 
-$utf8 = [System.Text.UTF8Encoding]::new($false)
+$utf8NoBom = [System.Text.UTF8Encoding]::new($false)
 
 $installerPath = Join-Path $repoRoot "winget\manifests\p\Paulmann\RDPDiagnosticTool\$Version\Paulmann.RDPDiagnosticTool.installer.yaml"
 if (-not (Test-Path -LiteralPath $installerPath)) { throw "Missing manifest: $installerPath" }
@@ -75,7 +75,9 @@ $updated = foreach ($line in [IO.File]::ReadAllLines($installerPath)) {
         $line
     }
 }
-[IO.File]::WriteAllLines($installerPath, $updated, $utf8)
+# Write LF explicitly: [IO.File]::WriteAllLines uses Environment.NewLine (CRLF on Windows)
+# and the repository keeps these manifests at LF.
+[IO.File]::WriteAllText($installerPath, (($updated -join "`n") + "`n"), $utf8NoBom)
 
 # Self-check: the key must come back exactly once, indented, and nested under Installers.
 $verify = [IO.File]::ReadAllLines($installerPath)
@@ -89,7 +91,7 @@ if (@($verify | Where-Object { $_ -match '^Installers:' }).Count -ne 1) {
 $scoopPath = Join-Path $repoRoot 'scoop\rdp-diagnostic-tool.json'
 $scoop = Get-Content -LiteralPath $scoopPath -Raw | ConvertFrom-Json -AsHashtable
 $scoop['hash'] = $sha.ToLowerInvariant()
-[IO.File]::WriteAllText($scoopPath, (($scoop | ConvertTo-Json -Depth 6) -replace "`r`n", "`n") + "`n", $utf8)
+[IO.File]::WriteAllText($scoopPath, (($scoop | ConvertTo-Json -Depth 6) -replace "`r`n", "`n") + "`n", $utf8NoBom)
 
 "version : $Version"
 "asset   : $zipName"
