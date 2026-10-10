@@ -349,10 +349,18 @@ syntax parse gate (Windows + Ubuntu), PSScriptAnalyzer gate (zero Error/Warning 
 
 ## Releasing (Maintainers)
 
-1. Bump `$script:ToolVersion` **and** the `.NOTES` version in the comment help **and** add the `CHANGELOG.md` entry (the test-suite enforces marker ↔ changelog consistency).
-2. Merge to `main`; CI must be green.
-3. Create a GitHub **Release** with tag `X.Y.Z` (the updater parses the tag; a `v` prefix is tolerated). Optionally attach `RDP-Tool.ps1` as a release asset - the updater prefers assets and falls back to the tagged raw file.
-4. Verify: `.\RDP-Tool.ps1 -CheckUpdate` from an older copy must report "update available" (exit 5).
+1. Bump `$script:ToolVersion` **and** the `.NOTES` version in the comment help **and** add the `CHANGELOG.md` entry (the test-suite enforces marker ↔ changelog consistency). `tools/npm/package.json` is checked against both by `tools/npm/check-npm-version.mjs`.
+2. Merge to `main`; CI must be green (the `package` job builds the npm tarball, the release assets and validates the winget manifests).
+3. Build and publish the release assets:
+   ```powershell
+   pwsh -NoLogo -NoProfile -NonInteractive -File .\tools\release\make-release-assets.ps1      # RDP-Tool.ps1, ZIP, SHA256SUMS.txt
+   pwsh -NoLogo -NoProfile -NonInteractive -File .\tools\release\make-package-manifests.ps1   # winget + Scoop manifests
+   pwsh -NoLogo -NoProfile -NonInteractive -File .\tools\release\publish-release.ps1          # tag + GitHub Release (needs gh auth login)
+   ```
+   Tag the release as `X.Y.Z` (a `v` prefix is tolerated). Asset names matter: the self-updater downloads the asset named exactly `RDP-Tool.ps1`, and the winget/Scoop manifests download the ZIP.
+4. Publish the npm package (first release only, interactive): `node tools/npm/build-npm-package.mjs`, then `cd dist/npm; npm publish --access public` with the one-time password. Afterwards, configure a Trusted Publisher on npmjs.com and let the `publish-npm.yml` workflow publish on tag pushes.
+5. Update the winget and Scoop manifests' URLs/hashes (step 3 regenerates them) and submit the winget manifest via a PR to `microsoft/winget-pkgs` (see `winget/README.md`).
+6. Verify: `.\RDP-Tool.ps1 -CheckUpdate` from an older copy must report "update available" (exit 5), and `npx rdp-diagnostic-tool@X.Y.Z -Version` must print the new version.
 
 ## Troubleshooting
 
