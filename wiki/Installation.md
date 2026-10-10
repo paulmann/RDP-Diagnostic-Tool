@@ -44,6 +44,31 @@ Unblock-File .\RDP-Tool.ps1
 . .\RDP-Tool.ps1 -Help
 ```
 
+### Option D - npm (Node.js 18+)
+
+The same `RDP-Tool.ps1` is published to npm as `rdp-diagnostic-tool`. It is the
+script plus a launcher that resolves `pwsh` and forwards the tool's exit codes.
+
+```powershell
+npx rdp-diagnostic-tool@5.0.0 -Version     # try without installing
+npm install -g rdp-diagnostic-tool          # permanent: rdp-tool on PATH
+rdp-tool                                    # full read-only audit
+```
+
+Full details, update and uninstall instructions: see `docs/NPM.md` in the repository.
+
+### Option E - winget / Scoop
+
+```powershell
+# winget (after the manifest is merged into microsoft/winget-pkgs)
+winget install Paulmann.RDPDiagnosticTool
+
+# Scoop, straight from the repository manifest
+scoop install https://raw.githubusercontent.com/paulmann/RDP-Diagnostic-Tool/main/scoop/rdp-diagnostic-tool.json
+```
+
+Both place a shim on `PATH` under the name `rdp-tool`.
+
 ### Execution policy
 
 If your policy blocks scripts, invoking through `pwsh -File` (as shown above) is the
@@ -92,6 +117,14 @@ What `-Update` guarantees:
 Delete `RDP-Tool.ps1` (and any `.bak-*` backups). The tool writes nothing to the
 registry or disk except the reports/logs **you** request via `-ExportReport`,
 `-ExportJson`, `-LogPath`.
+
+If it was installed through a package manager, remove it there instead:
+
+```powershell
+npm uninstall -g rdp-diagnostic-tool
+winget uninstall Paulmann.RDPDiagnosticTool
+scoop uninstall rdp-diagnostic-tool
+```
 
 ---
 

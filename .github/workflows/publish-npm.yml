@@ -1,0 +1,45 @@
+name: Publish to npm
+
+# Publishes dist/npm to the public npm registry using trusted publishing (OIDC).
+#
+# One-time setup on npmjs.com before the first run of this workflow:
+#   Package settings -> Trusted publishing -> GitHub Actions
+#     Organization or user: paulmann
+#     Repository:           RDP-Diagnostic-Tool
+#     Workflow filename:    publish-npm.yml
+# The trusted publisher can only be configured for a package that already exists, so
+# the very first release is published manually (see docs/NPM.md).
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish rdp-diagnostic-tool
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: npm
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Build the publishable package (also gates version sync)
+        run: node tools/npm/build-npm-package.mjs
+
+      - name: Publish
+        working-directory: dist/npm
+        run: npm publish --access public

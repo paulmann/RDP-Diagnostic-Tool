@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.6.0.schema.json
+PackageIdentifier: Paulmann.RDPDiagnosticTool
+PackageVersion: 5.0.0
+PackageLocale: en-US
+Publisher: Mikhail Deynekin
+PublisherUrl: https://github.com/paulmann
+PublisherSupportUrl: https://github.com/paulmann/RDP-Diagnostic-Tool/issues
+Author: Mikhail Deynekin
+PackageName: RDP Diagnostic & Remediation Tool
+PackageUrl: https://github.com/paulmann/RDP-Diagnostic-Tool
+License: MIT
+LicenseUrl: https://github.com/paulmann/RDP-Diagnostic-Tool/blob/main/LICENSE
+Copyright: Copyright (c) 2025-2026 Mikhail Deynekin
+ShortDescription: Diagnose, repair and verify Remote Desktop (RDP) on Windows, without an interpreter.
+Description: >-
+  RDP Diagnostic & Remediation Tool inspects every RDP component on a Windows machine -
+  OS edition support, registry and Group Policy configuration, listener state, services,
+  firewall rules, network profiles, TLS certificate, user rights, sessions and
+  RDP-related event logs - and repairs common misconfigurations safely behind
+  -WhatIf/-Confirm. It also performs a real X.224/RDP negotiation handshake against any
+  host to prove the listener answers and to detect whether TLS or CredSSP (NLA) is
+  required, and exports JSON and HTML reports. Requires PowerShell 7 (pwsh), which winget
+  reports as a dependency-free prerequisite - install it with
+  'winget install Microsoft.PowerShell'.
+Moniker: rdp-tool
+Tags:
+  - rdp
+  - remote-desktop
+  - windows-server
+  - diagnostics
+  - troubleshooting
+  - sysadmin
+  - powershell
+ReleaseNotesUrl: https://github.com/paulmann/RDP-Diagnostic-Tool/blob/main/CHANGELOG.md
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0

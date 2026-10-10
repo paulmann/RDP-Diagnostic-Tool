@@ -12,6 +12,7 @@
 
 - [What's new in v5](#whats-new-in-v5)
 - [Quick Start](#quick-start)
+- [Installation](#installation)
 - [Features](#features)
 - [Command-Line Reference](#command-line-reference)
 - [Command Examples](#command-examples)
@@ -63,6 +64,29 @@ pwsh -NoProfile -File .\RDP-Tool.ps1 -Help
 ```
 
 > If script execution is restricted, launch through `pwsh -File ...` as shown above (bypasses ExecutionPolicy for that invocation) or use `Unblock-File .\RDP-Tool.ps1` after downloading.
+
+## Installation
+
+Any one channel is enough - every channel ships the **same** `RDP-Tool.ps1`.
+
+| Channel | Command | Requires |
+|---|---|---|
+| **npm** (one-off) | `npx rdp-diagnostic-tool@5.0.0 -Version` | Node.js 18+ |
+| **npm** (permanent) | `npm i -g rdp-diagnostic-tool`, then `rdp-tool` | Node.js 18+ |
+| **Direct download** | `RDP-Tool.ps1` from the [latest release](https://github.com/paulmann/RDP-Diagnostic-Tool/releases/latest), then `Unblock-File .\RDP-Tool.ps1` | PowerShell 7 only |
+| **Git clone** | `git clone https://github.com/paulmann/RDP-Diagnostic-Tool` | git |
+| **winget** | `winget install Paulmann.RDPDiagnosticTool` (once the manifest is merged into `winget-pkgs`) | winget |
+| **Scoop** | `scoop install https://raw.githubusercontent.com/paulmann/RDP-Diagnostic-Tool/main/scoop/rdp-diagnostic-tool.json` | Scoop |
+
+PowerShell 7 (`pwsh`) is required on every channel; install it with `winget install Microsoft.PowerShell`. Through npm and the package managers the command is on `PATH` as `rdp-tool`:
+
+```powershell
+rdp-tool                                  # full read-only audit
+rdp-tool -TestRdpTarget "srv01:3389"       # prove the listener really speaks RDP
+rdp-tool -EnableRDP -Force                # elevated repair
+```
+
+Self-update (`-CheckUpdate` / `-Update`) behaves identically on all channels: the script refreshes itself in place from GitHub Releases. npm-specific details: [docs/NPM.md](docs/NPM.md).
 
 ## Features
 

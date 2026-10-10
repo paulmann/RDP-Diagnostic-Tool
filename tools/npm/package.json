@@ -1,0 +1,52 @@
+{
+  "name": "rdp-diagnostic-tool",
+  "version": "5.0.0",
+  "description": "Comprehensive RDP diagnostic and remediation tool for Windows 10/11 and Windows Server: full health check, protocol-level RDP handshake probe, live sessions, JSON/HTML reports and safe remediation behind -WhatIf.",
+  "keywords": [
+    "rdp",
+    "remote-desktop",
+    "windows",
+    "windows-server",
+    "diagnostics",
+    "troubleshooting",
+    "sysadmin",
+    "nla",
+    "credssp",
+    "powershell"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Mikhail Deynekin"
+  },
+  "homepage": "https://github.com/paulmann/RDP-Diagnostic-Tool#readme",
+  "bugs": {
+    "url": "https://github.com/paulmann/RDP-Diagnostic-Tool/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paulmann/RDP-Diagnostic-Tool.git"
+  },
+  "os": [
+    "win32"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "rdp-tool": "bin/rdp-tool.mjs",
+    "rdp-diagnostic-tool": "bin/rdp-tool.mjs"
+  },
+  "scripts": {
+    "prepack": "node ../../tools/npm/check-npm-version.mjs ."
+  },
+  "files": [
+    "bin/",
+    "RDP-Tool.ps1",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

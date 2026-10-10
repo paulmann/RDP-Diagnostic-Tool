@@ -85,3 +85,38 @@ jobs:
           $null = [System.Management.Automation.Language.Parser]::ParseFile("$PWD/RDP-Tool.ps1", [ref]$tokens, [ref]$errors)
           if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_.Message }; exit 1 }
           Write-Host "Parse OK on Linux runner."
+
+  package:
+    name: Package gates (npm + release assets)
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build npm package (version sync + BOM gate)
+        shell: pwsh
+        run: |
+          node tools/npm/build-npm-package.mjs
+
+      - name: Inspect the npm tarball
+        shell: pwsh
+        working-directory: dist/npm
+        run: |
+          npm pack --dry-run
+
+      - name: Build release assets and package manifests
+        shell: pwsh
+        run: |
+          ./tools/release/make-release-assets.ps1
+          ./tools/release/make-package-manifests.ps1
+
+      - name: Validate winget manifests
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          $dir = (Resolve-Path 'winget/manifests/p/Paulmann/RDPDiagnosticTool/5.0.0').Path
+          winget validate --manifest $dir
