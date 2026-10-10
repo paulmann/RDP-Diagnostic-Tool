@@ -19,6 +19,6 @@ Commands:
 Installers:
   - Architecture: x64
     InstallerUrl: https://github.com/paulmann/RDP-Diagnostic-Tool/releases/download/5.0.1/RDP-Diagnostic-Tool-5.0.1.zip
-    InstallerSha256: F635A7850BFB245F633A2A6F6A8615CF04A2DED2B5ABCFA21A4802D4B9BAE41A
+    InstallerSha256: 799F9D94A6B94BEFB8FF36664C6147A90F911D42C1D3C9BA7E194120B8A3018D
 ManifestType: installer
 ManifestVersion: 1.6.0

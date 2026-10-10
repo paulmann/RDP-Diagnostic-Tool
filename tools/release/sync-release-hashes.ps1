@@ -63,9 +63,28 @@ $utf8 = [System.Text.UTF8Encoding]::new($false)
 
 $installerPath = Join-Path $repoRoot "winget\manifests\p\Paulmann\RDPDiagnosticTool\$Version\Paulmann.RDPDiagnosticTool.installer.yaml"
 if (-not (Test-Path -LiteralPath $installerPath)) { throw "Missing manifest: $installerPath" }
-$installer = Get-Content -LiteralPath $installerPath -Raw
-$installer = [regex]::Replace($installer, '(?m)^InstallerSha256:.*$', "InstallerSha256: $sha")
-[IO.File]::WriteAllText($installerPath, $installer, $utf8)
+
+# Rewrite the line in place instead of using a regex substitution: in .NET the
+# replacement string "$1" + hash becomes "$1799F9...", which the engine reads as an
+# out-of-range group reference and leaves literal, silently stripping the key name and
+# the indentation (and breaking the YAML).
+$updated = foreach ($line in [IO.File]::ReadAllLines($installerPath)) {
+    if ($line -match '^([ \t]*)InstallerSha256:') {
+        '{0}InstallerSha256: {1}' -f $Matches[1], $sha
+    } else {
+        $line
+    }
+}
+[IO.File]::WriteAllLines($installerPath, $updated, $utf8)
+
+# Self-check: the key must come back exactly once, indented, and nested under Installers.
+$verify = [IO.File]::ReadAllLines($installerPath)
+if (@($verify | Where-Object { $_ -match ("^\s+InstallerSha256:\s*" + [regex]::Escape($sha) + '\s*$') }).Count -ne 1) {
+    throw "Installer manifest was not updated correctly: $installerPath"
+}
+if (@($verify | Where-Object { $_ -match '^Installers:' }).Count -ne 1) {
+    throw "Installer manifest lost its Installers section: $installerPath"
+}
 
 $scoopPath = Join-Path $repoRoot 'scoop\rdp-diagnostic-tool.json'
 $scoop = Get-Content -LiteralPath $scoopPath -Raw | ConvertFrom-Json -AsHashtable

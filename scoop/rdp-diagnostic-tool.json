@@ -4,7 +4,7 @@
   "homepage": "https://github.com/paulmann/RDP-Diagnostic-Tool",
   "license": "MIT",
   "url": "https://github.com/paulmann/RDP-Diagnostic-Tool/releases/download/5.0.1/RDP-Diagnostic-Tool-5.0.1.zip",
-  "hash": "f635a7850bfb245f633a2a6f6a8615cf04a2ded2b5abcfa21a4802d4b9bae41a",
+  "hash": "799f9d94a6b94befb8ff36664c6147a90f911d42c1d3c9ba7e194120b8a3018d",
   "bin": [
     [
       "rdp-tool.exe",
