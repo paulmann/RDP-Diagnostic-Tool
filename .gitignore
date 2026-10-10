@@ -43,6 +43,7 @@ reports/
 *.keystore
 .env
 .env.local
+.npmrc
 
 # Build
 bin/
