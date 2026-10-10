@@ -1,131 +1,143 @@
-<!-- Last Updated: 2026-04-01 | Version: 1.0.0 -->
+<!-- Last Updated: 2026-10-09 | Version: 5.0.0 -->
 
 # Contributing
 
 [[Home]] › Contributing
 
-Thank you for considering a contribution to the RDP Diagnostic Tool! This page describes the development workflow, code standards, and pull request process.
+Thanks for considering a contribution! This project is a **single-file PowerShell
+tool** (`RDP-Tool.ps1`) with a Pester test-suite, a PSScriptAnalyzer gate and
+GitHub Actions CI. Everything below runs on Windows and (for the logic tests)
+cross-platform.
 
 ---
 
-## 🔄 Development Workflow
-
-1. **Fork** the repository to your GitHub account
-2. **Clone** your fork locally:
-   ```powershell
-   git clone https://github.com/YOUR_USERNAME/RDP-Diagnostic-Tool.git
-   cd RDP-Diagnostic-Tool
-   ```
-3. **Create a feature branch** following the naming convention:
-   ```powershell
-   git checkout -b feature/add-quic-diagnostics
-   # or: fix/credssp-null-reference
-   # or: docs/update-wpr-guide
-   ```
-4. **Make your changes**, following the code standards below
-5. **Test** thoroughly (see [Testing Requirements](#testing-requirements))
-6. **Submit a Pull Request** to `main` using the PR template
-
----
-
-## ✍️ Code Standards
-
-### PowerShell Style Guide
+## 🧰 Development Setup
 
 ```powershell
-#Requires -Version 7.0
-#Requires -RunAsAdministrator
+git clone https://github.com/paulmann/RDP-Diagnostic-Tool
+cd RDP-Diagnostic-Tool
 
-<#
-.SYNOPSIS
-  Brief description of the function.
-
-.DESCRIPTION
-  Full description. Author: Mikhail Deynekin <mid1977@gmail.com>
-  https://deynekin.com
-
-.PARAMETER Target
-  Hostname or IP of the RDP server to diagnose.
-
-.EXAMPLE
-  Invoke-RdpDiagnostic -Target "rdsh01.corp.local" -Mode Full
-#>
-function Invoke-RdpDiagnostic {
-  [CmdletBinding(SupportsShouldProcess)]
-  param (
-    [Parameter(Mandatory, Position = 0)]
-    [ValidateNotNullOrEmpty()]
-    [string]$Target,
-
-    [ValidateSet('Quick', 'Full', 'Deep')]
-    [string]$Mode = 'Full'
-  )
-  # Implementation
-}
+# Tooling (one-time)
+Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
+Install-Module Pester -Scope CurrentUser -Force -SkipPublisherCheck -MinimumVersion 5.0
 ```
 
-**Key rules:**
-- Use `[CmdletBinding()]` and parameter validation on all public functions
-- Follow `Verb-Noun` naming (use `Get-Verb` to validate verbs)
-- Include `#Requires` at the top of every script
-- No positional parameters beyond `Position = 0`
-- Always use `$PSCmdlet.ShouldProcess()` for state-changing operations
-- Minimum PowerShell 7.0 compatibility
+### Library mode (dot-source without executing)
 
----
-
-## 🧪 Testing Requirements
-
-All PRs must include Pester 5.x tests:
+The script exposes a test hook: when `$env:RDPDIAG_LIB` is set, it only defines
+functions and runs no actions:
 
 ```powershell
-# tests/RDP-Tool.Tests.ps1
-Describe "Invoke-RdpDiagnostic" {
-  Context "Quick Mode" {
-    It "Should return a result object with OverallStatus" {
-      $result = Invoke-RdpDiagnostic -Target localhost -Mode Quick -OutputFormat JSON | ConvertFrom-Json
-      $result.overallStatus | Should -BeIn @('Pass', 'Warning', 'Critical')
-    }
-
-    It "Should complete within 60 seconds" {
-      $elapsed = Measure-Command { Invoke-RdpDiagnostic -Target localhost -Mode Quick }
-      $elapsed.TotalSeconds | Should -BeLessOrEqual 60
-    }
-  }
-}
-
-# Run tests
-Invoke-Pester -Path .\tests\ -Output Detailed
+$env:RDPDIAG_LIB = '1'
+. .\RDP-Tool.ps1
+Initialize-ConsoleEnvironment
+Get-RdpNegotiationRequestBytes            # inspect the protocol codec
+Test-RdpHostEditionSupported -EditionID 'CoreN' -Caption 'Windows 11 Home N' -ProductType 1
 ```
 
-> [!NOTE]
-> Tests must pass on **PowerShell 7.0, 7.2, and 7.4** on **Windows Server 2019, 2022, and 2025**.
+---
+
+## ✅ Validation Loop (same gates as CI)
+
+```powershell
+# 1) Syntax
+$e=$null;$t=$null; [System.Management.Automation.Language.Parser]::ParseFile("$PWD\RDP-Tool.ps1",[ref]$t,[ref]$e); $e
+
+# 2) Lint (zero Error/Warning findings required)
+Invoke-ScriptAnalyzer -Path .\RDP-Tool.ps1 -Settings .\ScriptAnalyzerSettings.psd1
+
+# 3) Tests
+Invoke-Pester .\tests -Output Detailed
+```
+
+CI: [`.github/workflows/ci.yml`](https://github.com/paulmann/RDP-Diagnostic-Tool/blob/main/.github/workflows/ci.yml)
+runs all three on `windows-latest` (plus a parse gate on `ubuntu-latest`) for
+every push and PR.
 
 ---
 
-## 📝 Pull Request Template
+## 📐 Code Conventions
 
-When opening a PR, fill out:
-
-- **What does this PR do?** — clear description of the change
-- **Issue reference** — `Fixes #123` or `Closes #456`
-- **Test coverage** — which Pester tests cover this change?
-- **Breaking changes** — list any breaking parameter or output format changes
-- **Checklist:**
-  - [ ] Code follows style guide
-  - [ ] Pester tests included and passing
-  - [ ] CHANGELOG.md updated
-  - [ ] Documentation (wiki) updated if needed
-  - [ ] No secrets or credentials in code
+- **Strict mode**: the script runs under `Set-StrictMode -Version 2.0` - never
+  reference possibly-missing properties; use the helpers `Get-RegistryValue` /
+  `Test-RegistryValueExists`.
+- **State**: `$script:` scope only (no `$global:`). Results flow through
+  `New-DiagnosticResult` / `New-RemediationRecord` / `New-TestRecord` - these
+  must emit nothing to the success stream.
+- **Checks**: every new check is a `Test-*`/`Get-*` function invoked through
+  `Invoke-Check` so failures are isolated; add a `Category` and an actionable
+  `Remedy` string to every non-OK result.
+- **Mutations**: put them in the Remediation region, make them
+  `SupportsShouldProcess` (`ConfirmImpact='High'` for destructive ones), GPO-aware
+  (skip + explain when a policy manages the value), idempotent, and record them
+  via `New-RemediationRecord`.
+- **No** `Invoke-Expression`, `Get-WmiObject`, English-only firewall/group names
+  (use internal rule names / well-known SIDs), or hard-coded exit paths - extend
+  `$script:ExitCode`.
+- **Console output** goes through `Show-Line` / `Show-Section` (Quiet/NoColor/
+  NoEmoji aware). Keep lines < 100 chars.
+- **Help**: any new parameter needs a `.PARAMETER` block, an entry in
+  `Show-ToolHelp`, the README reference table and a test in
+  `tests/RDP-Tool.Tests.ps1` (the "documents every parameter" test enforces it).
 
 ---
 
-## 🐛 Reporting Issues
+## 🧪 Adding Tests
 
-- Use [GitHub Issues](https://github.com/paulmann/RDP-Diagnostic-Tool/issues)
-- For **security vulnerabilities**, see [[Security#responsible-disclosure]] — do NOT use public issues
-- Include: PowerShell version, OS version, error message, steps to reproduce
+`tests/RDP-Tool.Tests.ps1` groups:
+
+| Describe | Scope | Platform |
+|---|---|---|
+| Script integrity | parse, BOM, `#Requires`, version marker ↔ CHANGELOG | any |
+| Comment-based help | `.PARAMETER` coverage, examples, links | any |
+| Parameter surface | expected switches, aliases, validation attributes | any |
+| RDP negotiation protocol logic | byte-level codec fixtures | any |
+| Windows edition support matrix | regression guard (e.g. `CoreN` = Home) | any |
+| Update engine | marker parsing, payload validation, sources | any (+network-tagged live probe) |
+| CLI behavior | child-process exit codes for `-Help`, conflicts, bind errors | any |
+| PSScriptAnalyzer gate | zero findings | any (skips when module absent) |
+
+Prefer **pure-logic tests** (fixtures/AST) over environment-dependent ones;
+Windows-only behavior belongs in CI on `windows-latest`.
 
 ---
 
-**Next:** [[Changelog]] →
+## 🚀 Release Checklist (maintainers)
+
+1. Bump `$script:ToolVersion` (keep the literal `[version]'x.y.z'` format - the
+   updater parses it remotely).
+2. Sync the `.NOTES` version in the comment help and the README badge.
+3. Add the `CHANGELOG.md` entry **on top** (a test compares it with the marker).
+4. CI green on `main`.
+5. Publish a GitHub Release with tag `x.y.z` (the updater reads `releases/latest`;
+   a `v` prefix is tolerated). Optionally attach `RDP-Tool.ps1` as an asset -
+   assets are preferred over tagged raw files.
+6. Smoke-test the upgrade path: from the previous version run
+   `.\RDP-Tool.ps1 -CheckUpdate` (expect exit `5`) then `-Update` (backup + replace).
+
+---
+
+## 🐞 Reporting Issues
+
+Include:
+- `.\RDP-Tool.ps1 -Version` output
+- a reproduction command line
+- `-ExportReport report.html` + `-LogPath run.log` files (they contain no credentials)
+- OS build (`winver`) and whether Group Policies manage RDP
+
+## 💡 Ideas / Roadmap
+
+See [[Enhancement-Roadmap]] - high-value candidates: Authenticode-signed releases
+with checksum assets, `-Targets` multi-host sweep over Remoting, RD Gateway
+profile checks, QUIC transport diagnostics.
+
+---
+
+## Pull Request Process
+
+1. Fork → branch `feature/<name>` or `fix/<name>`
+2. Implement + tests + docs (README/wiki when user-visible)
+3. Validation loop green locally; CI green on the PR
+4. One review from a maintainer; squash-merge to `main`
+
+*License: by contributing you agree your contributions are MIT-licensed.*

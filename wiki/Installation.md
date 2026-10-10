@@ -1,114 +1,98 @@
-<!-- Last Updated: 2026-04-01 | Version: 1.0.0 -->
+<!-- Last Updated: 2026-10-09 | Version: 5.0.0 -->
 
 # Installation
 
 [[Home]] › Installation
 
-This page covers all methods to install and deploy the RDP Diagnostic Tool in enterprise environments, including online, offline, and GPO-based deployment.
+RDP-Tool is a **single self-contained script** - there is nothing to install, no modules, no MSI.
 
 ---
 
-## 📋 Prerequisites
+## ✅ Prerequisites
 
-| Requirement | Minimum | Recommended |
-|-------------|---------|-------------|
-| PowerShell | 7.0 | 7.4+ |
-| OS | Windows Server 2019 | Windows Server 2022/2025 |
-| .NET Runtime | 6.0 | 8.0 |
-| Privileges | Local Administrator | Domain Administrator |
-| WinRM | Enabled | HTTPS listener configured |
-| Execution Policy | RemoteSigned | RemoteSigned |
-
-> [!NOTE]
-> For diagnosing remote hosts, WinRM must be enabled on target machines. See [WinRM Configuration](#winrm-configuration) below.
+| Requirement | Notes |
+|---|---|
+| Windows 10 / 11 / Server 2016+ | The tool drives Windows-only APIs (registry, CIM/WMI, NetSecurity, WTS) |
+| **PowerShell 7+** (`pwsh`) | Enforced via `#Requires -Version 7.0`. Install: `winget install Microsoft.PowerShell` |
+| Administrator rights | Only for **changes** (`-EnableRDP`, `-SetPort`, `-AddUser`, ...). Read-only diagnostics work unelevated |
+| Internet access | Only for `-CheckUpdate` / `-Update` / `-TestExternal` (or use an internal mirror via `-UpdateSource`) |
 
 ---
 
-## 📦 Installation Methods
+## 📥 Getting the Tool
 
-### Method 1: Direct Download (Recommended)
-
-```powershell
-# Download the latest release
-$url = "https://github.com/paulmann/RDP-Diagnostic-Tool/releases/latest/download/RDP-Tool.ps1"
-Invoke-WebRequest -Uri $url -OutFile "$env:ProgramFiles\RDP-Diagnostic-Tool\RDP-Tool.ps1"
-
-# Unblock downloaded file
-Unblock-File -Path "$env:ProgramFiles\RDP-Diagnostic-Tool\RDP-Tool.ps1"
-```
-
-### Method 2: Git Clone
+### Option A - Git
 
 ```powershell
-git clone https://github.com/paulmann/RDP-Diagnostic-Tool.git
+git clone https://github.com/paulmann/RDP-Diagnostic-Tool
 cd RDP-Diagnostic-Tool
+pwsh -NoProfile -File .\RDP-Tool.ps1 -Help
 ```
 
-### Method 3: Offline / Air-Gapped Environments
+### Option B - Release download
+
+Download `RDP-Tool.ps1` from the [latest release](https://github.com/paulmann/RDP-Diagnostic-Tool/releases/latest), then unblock it once:
 
 ```powershell
-# On internet-connected machine: package the tool
-Save-Script -Name RDP-Tool -Path C:\Offline\RDPTool\
-
-# Copy to target (USB, share, etc.), then install:
-Copy-Item C:\Transfer\RDP-Tool.ps1 "$env:ProgramFiles\RDP-Diagnostic-Tool\"
+Unblock-File .\RDP-Tool.ps1
 ```
 
----
-
-## ⚙️ WinRM Configuration
+### Option C - One-liner (dot-source into a session)
 
 ```powershell
-# Enable WinRM on target servers (run on each target)
-Enable-PSRemoting -Force
+# From a trusted network location or after reviewing the file:
+. .\RDP-Tool.ps1 -Help
+```
 
-# For HTTPS transport (recommended for production)
-$cert = New-SelfSignedCertificate -DnsName $env:COMPUTERNAME -CertStoreLocation Cert:\LocalMachine\My
-New-Item -Path WSMan:\localhost\Listener -Transport HTTPS -Address * -CertificateThumbprint $cert.Thumbprint -Force
+### Execution policy
 
-# Open firewall for WinRM HTTPS
-New-NetFirewallRule -DisplayName "WinRM HTTPS" -Direction Inbound -Protocol TCP -LocalPort 5986 -Action Allow
+If your policy blocks scripts, invoking through `pwsh -File` (as shown above) is the
+cleanest per-invocation bypass. Alternatives:
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass          # current window only
+# or sign the script and require signatures:
+# Get-AuthenticodeSignature .\RDP-Tool.ps1
 ```
 
 > [!TIP]
-> In Active Directory environments, use Group Policy to enable WinRM across all Session Hosts simultaneously. See [[Configuration#gpo-deployment]].
-
----
-
-## ✅ Verify Installation
-
-```powershell
-# Verify the script loads without errors
-. "$env:ProgramFiles\RDP-Diagnostic-Tool\RDP-Tool.ps1"
-
-# Run self-test
-Invoke-RdpDiagnostic -Target localhost -Mode Quick -Verbose
-```
-
-Expected output:
-
-```
-[INFO] RDP Diagnostic Tool v1.0.0 initialized
-[INFO] Target: localhost | Mode: Quick
-[PASS] TermService: Running
-[PASS] RDP Port 3389: Listening
-[PASS] Firewall Rule: Enabled
-[PASS] NLA: Configured
-```
+> For enterprise deployment, mirror `RDP-Tool.ps1` to an internal share and
+> distribute via SCCM/Intune. Pin updates with `-UpdateSource <internal URL>`.
 
 ---
 
 ## 🔄 Updating
 
-```powershell
-# Check current version
-Get-Content "$env:ProgramFiles\RDP-Diagnostic-Tool\RDP-Tool.ps1" | Select-String -Pattern "^#\sVersion:"
+The tool updates itself from GitHub Releases (validated + backed up + atomic replace):
 
-# Update to latest
-Invoke-WebRequest -Uri "https://github.com/paulmann/RDP-Diagnostic-Tool/releases/latest/download/RDP-Tool.ps1" `
-  -OutFile "$env:ProgramFiles\RDP-Diagnostic-Tool\RDP-Tool.ps1"
+```powershell
+.\RDP-Tool.ps1 -CheckUpdate      # 0 = up to date, 5 = update available, 6 = check failed
+.\RDP-Tool.ps1 -Update           # interactive
+.\RDP-Tool.ps1 -Update -Force    # unattended (backup: RDP-Tool.ps1.bak-<timestamp>)
 ```
+
+Air-gapped / mirrored environments:
+
+```powershell
+.\RDP-Tool.ps1 -Update -UpdateSource https://intranet.corp/tools/RDP-Tool.ps1
+.\RDP-Tool.ps1 -Update -UpdateSource contoso/RDP-Diagnostic-Tool   # fork slug
+```
+
+What `-Update` guarantees:
+
+1. TLS-only download (GitHub API → release asset → tagged raw file → branch raw file)
+2. Content validation: size floor, HTML-error-page detection, embedded version marker match, **full PowerShell syntax parse**
+3. Timestamped backup next to the script (falls back to `%TEMP%` if the folder is write-protected)
+4. Atomic replacement (temp file + move) - the old file is never left half-written
 
 ---
 
-**Next:** [[Configuration]] →
+## 🗑️ Uninstalling
+
+Delete `RDP-Tool.ps1` (and any `.bak-*` backups). The tool writes nothing to the
+registry or disk except the reports/logs **you** request via `-ExportReport`,
+`-ExportJson`, `-LogPath`.
+
+---
+
+Next: [[Usage]] for the CLI reference.

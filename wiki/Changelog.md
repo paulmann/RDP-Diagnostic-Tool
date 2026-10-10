@@ -1,54 +1,64 @@
-<!-- Last Updated: 2026-04-01 | Version: 1.0.0 -->
+<!-- Last Updated: 2026-10-09 | Version: 5.0.0 -->
 
 # Changelog
 
 [[Home]] › Changelog
 
-All notable changes to the RDP Diagnostic Tool are documented here following [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) conventions and [Semantic Versioning](https://semver.org/).
+The **authoritative changelog** lives in the repository: [CHANGELOG.md](https://github.com/paulmann/RDP-Diagnostic-Tool/blob/main/CHANGELOG.md).
+This page is a short orientation summary.
 
 ---
 
-## [1.0.0] — 2026-04-01
+## [5.0.0] — 2026-10-09 · Major production refactor
 
-### 🎉 Initial Release
+### Added
+- **Comprehensive help** (`-Help` / `-?` / `-h`) + full comment-based help for `Get-Help -Full`
+- **Self-update engine**: `-CheckUpdate` (exit `5` = update available), `-Update` (validated download → timestamped backup → atomic replace), `-UpdateSource` for mirrors/forks
+- **RDP protocol handshake probe** (`-TestRdpTarget host[:port]`): unauthenticated X.224/RDP negotiation against local or remote endpoints; reports Standard/TLS/CredSSP(NLA) and exact failure codes
+- **Session listing** (`-ShowSessions`): WTS P/Invoke with qwinsta fallback
+- **New actions**: `-DisableRDP`, `-AddUser`, `-RestartServices`, `-Elevate`, standalone `-SetPort`
+- **Reporting**: `-ExportJson`, `-LogPath`, `-Quiet`, `-NoBrowser`, `-NoColor`, `-NoEmoji` (auto ASCII fallback), redesigned HTML report
+- **Safety**: `-WhatIf`/`-Confirm` on every mutation, GPO-overlay detection, remote-session guards, per-check failure isolation (`Invoke-Check`), parameter-combination validation
+- **New checks**: TLS certificate audit, `fEnableWinStation`, Public-profile firewall gap, port squatting, UDP listener, brute-force source-IP rollup (4625/10), RCM 1148/1149, LSM 21-25, gateway/DNS sanity
+- **Engineering**: GitHub Actions CI, PSScriptAnalyzer gate, Pester 5/6 suite, `RDPDIAG_LIB` dot-source mode
 
-#### Added
-- `Invoke-RdpDiagnostic` core function with `Quick`, `Full`, and `Deep` modes
-- **Network layer checks:** port 3389 listener, firewall rules, TCP/UDP transport validation
-- **Authentication checks:** NLA enforcement, CredSSP patch level (CVE-2018-0886), TLS version
-- **Session checks:** active/inactive session count, session isolation, WinStation status
-- **Kernel driver checks:** `termdd.sys`, `tdtcp.sys`, `tdudp.sys` version and signing validation
-- **GPU/RemoteFX checks:** VRAM utilization, GPU-P partition status
-- **Output formats:** Console (colorized), JSON, HTML, CSV
-- **Report generator:** timestamped HTML reports with pass/warn/fail categorization
-- Comprehensive enterprise documentation wiki
-- Pester 5.x test suite
+### Changed
+- No-parameter run now performs a **full read-only diagnostic** (help moved to `-Help`)
+- `-SetPort`/`-ChangePort` composes with all other switches (v4's parameter-set split made the documented `-ChangePort 3390 -EnableRDP` example fail)
+- TermService expected in its default **Manual (trigger-start)** state - no more false positives
+- Network re-categorization only via explicit `-ForcePrivateNetwork` (was silently bundled into `-EnableRDP`)
+- Localized-Windows-safe firewall matching (internal rule names + port filters, not English display names) and SID-based group lookup
+- Fast .NET `TcpClient` probes instead of `Test-NetConnection`
+- Exit codes refined: `0/1/2/3/4/5/6/99` (see [[Usage]])
 
-#### Architecture
-- PowerShell 7.0+ native (no Windows PowerShell 5.1 dependency)
-- CIM/WMI abstraction layer for cross-version compatibility
-- Modular design: diagnostic checks are independently loadable
-- Read-only by default; `-Remediate` flag required for any changes
+### Fixed (highlights)
+- `CoreN` (Home N) misdetected as RDP-capable; explicit edition matrix incl. Windows 11 SE
+- `Get-WmiObject` (dead in PS7), `Invoke-Expression` remediations (code-exec surface), `$Verbose` gating bug, ineffective `#Requires` placement
+- Pending-reboot value-vs-key check bug; `Get-Service -DependentServices` crash; invalid `RemoteDesktop-Server` optional-feature calls on client SKUs
+- Port audit false "MISCONFIGURED" on healthy custom ports; numerous StrictMode hazards
+
+### Removed
+- RemoteFX/`fEnableVirtualizedGraphics` remediation (dangerous here-string), WinSAT probe, `$global:` state pollution
+
+### Security
+- No credentials touched, no telemetry, TLS-only updates with syntax-parse validation, reversible firewall changes, NLA enforced by default
 
 ---
 
-## [Unreleased] — Future Roadmap
+## [4.2.0] — 2025-12-08
 
-### Planned for v1.1.0
-- [ ] ServiceNow ITSM webhook integration
-- [ ] Azure Monitor / Log Analytics export
-- [ ] QUIC transport diagnostics (Windows Server 2025)
-- [ ] Automated Pester CI via GitHub Actions
+- First public release: 50+ diagnostic checks, `-EnableRDP` remediation, HTML export, exit codes `0/1/2/3/4/99`.
+- Full notes: [CHANGELOG.md](https://github.com/paulmann/RDP-Diagnostic-Tool/blob/main/CHANGELOG.md)
 
-### Planned for v1.2.0
-- [ ] ML anomaly detection module (Isolation Forest)
-- [ ] Power BI streaming dataset connector
-- [ ] Multi-host farm health summary dashboard
+---
 
-### Planned for v2.0.0
-- [ ] Cross-platform Linux/macOS diagnostic client (xrdp targets)
-- [ ] REST API mode for ITSM/automation integration
-- [ ] Container-based deployment (Docker)
+## Roadmap (candidates)
+
+- [ ] RD Gateway / Windows App (AVD) connectivity profile
+- [ ] Optional Authenticode signing of releases + checksum assets consumed by `-Update`
+- [ ] Multi-host sweep mode (`-Targets hosts.txt`) over PowerShell Remoting
+- [ ] QUIC transport diagnostics (Windows Server 2025 / Win11 24H2+)
+- [ ] ServiceNow / Log Analytics exporters on top of `-ExportJson`
 
 ---
 

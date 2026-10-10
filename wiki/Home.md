@@ -1,35 +1,60 @@
-<!-- Last Updated: 2026-04-01 | Version: 1.0.0 -->
+<!-- Last Updated: 2026-10-09 | Version: 5.0.0 -->
 <!-- Schema.org: SoftwareApplication, TechArticle -->
 
 # RDP Diagnostic Tool
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue?style=flat-square)
+![Version](https://img.shields.io/badge/version-5.0.0-blue?style=flat-square)
 ![PowerShell](https://img.shields.io/badge/PowerShell-7%2B-5391FE?style=flat-square&logo=powershell)
-![Windows Server](https://img.shields.io/badge/Windows_Server-2019--2025-0078D4?style=flat-square&logo=windows)
+![Windows](https://img.shields.io/badge/Windows-10%2F11%20%7C%20Server-0078D4?style=flat-square&logo=windows)
 ![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 ![Maintained](https://img.shields.io/badge/maintained-yes-brightgreen?style=flat-square)
 
-> **Enterprise-grade PowerShell toolkit for diagnosing, monitoring, and optimizing Remote Desktop Protocol (RDP) infrastructure at scale.**
+> **Enterprise-grade PowerShell toolkit for diagnosing, repairing, and monitoring Remote Desktop Protocol (RDP) readiness - a single script, zero dependencies.**
 
-The **RDP Diagnostic Tool** provides Senior Systems Administrators, Enterprise Architects, and Principal Support Engineers with a systematic, multi-layered approach to RDP health checks — covering everything from kernel-mode driver validation to CredSSP authentication forensics, GPU session diagnostics, and predictive failure analytics.
+The **RDP Diagnostic & Remediation Tool** gives administrators a systematic, multi-layered RDP health check: OS edition/SKU support, registry and Group Policy overlay, service stack, firewall rules, network profiles, listener state, a **real X.224/RDP protocol handshake probe**, TLS certificate health, permissions, security posture, session lifecycle events and brute-force forensics - with one-switch auto-remediation, HTML/JSON reporting and a built-in self-updater.
 
 ---
 
 ## 🚀 Quick Start
 
 ```powershell
-# Run a full diagnostic against a remote host
-Invoke-RdpDiagnostic -Target "server01.corp.local" -Verbose
+# Full read-only audit of THIS machine (works unelevated, changes nothing)
+pwsh -NoProfile -File .\RDP-Tool.ps1
 
-# Quick health check (local)
-Invoke-RdpDiagnostic -Target localhost -Mode Quick
+# Enable + repair RDP end-to-end, unattended
+pwsh -NoProfile -File .\RDP-Tool.ps1 -EnableRDP -Force
 
-# Enterprise scan with HTML report output
-Invoke-RdpDiagnostic -Target "rdsh-farm01" -Mode Full -OutputFormat HTML -ReportPath C:\Reports\
+# Probe a REMOTE host: does the RDP stack really answer? Is NLA enforced?
+pwsh -NoProfile -File .\RDP-Tool.ps1 -TestRdpTarget "server01.corp.local:3390"
+
+# Who is connected right now?
+pwsh -NoProfile -File .\RDP-Tool.ps1 -ShowSessions
+
+# Reports for a ticket / SIEM
+pwsh -NoProfile -File .\RDP-Tool.ps1 -ExportReport .\rdp.html -ExportJson .\rdp.json -LogPath .\rdp.log
+
+# Comprehensive built-in help
+pwsh -NoProfile -File .\RDP-Tool.ps1 -Help
 ```
 
 > [!NOTE]
-> Requires PowerShell 7.0+ and must be run as Administrator. See [[Installation]] for prerequisites.
+> Requires PowerShell 7+ on Windows 10/11 or Windows Server 2016+. Diagnostics run
+> unelevated (reduced coverage); **any change requires Administrator** - add `-Elevate`
+> to auto-relaunch through UAC. See [[Installation]].
+
+---
+
+## 🧭 What's New in v5.0.0
+
+- **Comprehensive help** via `-Help` (plus full `Get-Help` integration)
+- **Self-update**: `-CheckUpdate` / `-Update` / `-UpdateSource` (GitHub Releases API with validated, backed-up, atomic replacement)
+- **Protocol-level probe**: unauthenticated X.224/RDP negotiation handshake against local or remote endpoints (`-TestRdpTarget`)
+- **Session view**: `-ShowSessions` (WTS API + qwinsta fallback)
+- **New actions**: `-DisableRDP`, `-AddUser`, `-RestartServices`, `-Elevate`, standalone `-SetPort`
+- **Automation-ready**: `-ExportJson`, `-LogPath`, `-Quiet`, `-WhatIf`/`-Confirm`, refined exit codes (incl. `5` = update available)
+- **~20 correctness fixes** over v4 (Home N detection, PS7-dead `Get-WmiObject`, `Invoke-Expression` remediations, firewall matching on localized systems, TermService trigger-start false positive, ...)
+
+Full details: [[Changelog]].
 
 ---
 
@@ -37,63 +62,35 @@ Invoke-RdpDiagnostic -Target "rdsh-farm01" -Mode Full -OutputFormat HTML -Report
 
 ```mermaid
 graph TD
-  subgraph Tool["RDP Diagnostic Tool"]
-    CLI["CLI / Invoke-RdpDiagnostic"]
-    CORE["Diagnostic Core Engine"]
-    MODULES["Modules: Network · Auth · Session · GPU · Perf"]
-    REPORT["Report Generator (HTML / JSON / CSV)"]
+  subgraph Tool["RDP-Tool.ps1 (single file)"]
+    P[Parameter validation] --> M{Mode}
+    M -->|"-Help / -Version"| H[Built-in reference]
+    M -->|"-CheckUpdate / -Update"| U[Update engine<br/>Releases API → raw probe]
+    M -->|"diagnose / remediate"| PRE[Prerequisites<br/>elevation · edition · reboot · binaries]
+    PRE --> REM[Remediation engine<br/>WhatIf/Confirm · GPO-aware · idempotent]
+    REM --> CHK[Guarded check pipeline<br/>registry+GPO · services · firewall · network<br/>listener · handshake · cert · permissions<br/>security · resources · event logs]
+    CHK --> RPT[Reporting<br/>console · HTML · JSON · log]
+    RPT --> EC[Exit code 0/1/2/3/4/99]
   end
-  subgraph Target["Target Host"]
-    TERMSVC["TermService"]
-    TERMDD["termdd.sys"]
-    CREDSSP["CredSSP / NLA"]
-    FIREWALL["Windows Firewall"]
-    GPU["GPU / RemoteFX"]
-  end
-  CLI --> CORE
-  CORE --> MODULES
-  MODULES -->|WinRM / CIM| Target
-  MODULES --> REPORT
 ```
 
----
-
-## 🗺️ Documentation Roadmap
-
-| Page | Description |
-|------|-------------|
-| [[Installation]] | Prerequisites, deployment methods, offline install |
-| [[Configuration]] | Parameters, profiles, enterprise GPO integration |
-| [[Usage]] | Diagnostic modes, examples, output formats |
-| [[Architecture]] | RDP protocol stack, component interaction diagrams |
-| [[Troubleshooting]] | Common issues, root causes, step-by-step fixes |
-| [[Advanced-Diagnostics]] | WPR, WinDbg, Wireshark, kernel debugging |
-| [[Security]] | JIT access, WDAC, NLA, CredSSP hardening |
-| [[Performance]] | GPU, SMB Direct, QoS, QUIC transport tuning |
-| [[Enhancement-Roadmap]] | ML analytics, ITSM integration, Power BI dashboard |
-| [[Contributing]] | PR guidelines, code standards, test requirements |
-| [[Changelog]] | Release history and breaking changes |
+See [[Architecture]] for design rules and [[Advanced-Diagnostics]] for deep dives.
 
 ---
 
-## ⚡ Feature Highlights
+## 📚 Documentation Map
 
-- ✅ **Multi-layer diagnostics** — network, protocol, auth, session, GPU, and licensing layers
-- ✅ **PowerShell 7+ native** — cross-platform CIM/WMI abstraction
-- ✅ **Non-intrusive** — read-only by default; remediation requires explicit `-Remediate` flag
-- ✅ **Enterprise-ready** — WinRM, CredSSP, and Kerberos transport support
-- ✅ **Structured output** — JSON, HTML, CSV report formats for SIEM/ITSM integration
-- ✅ **Extensible modules** — plug-in architecture for custom diagnostic checks
-
----
-
-## 🛡️ Security & Compliance
-
-> [!WARNING]
-> This tool requires elevated privileges. Always follow your organization's change management process before running diagnostics in production environments.
-
-See the [[Security]] page and [`SECURITY.md`](../SECURITY.md) for responsible disclosure guidelines.
+| Page | Contents |
+|---|---|
+| [[Installation]] | Download, execution policy, elevation, updating |
+| [[Usage]] | Full CLI reference, modes, examples, exit codes |
+| [[Configuration]] | Every switch in depth, automation recipes, JSON schema |
+| [[Troubleshooting]] | Symptom → fix matrix, common RDP failures |
+| [[Security]] | Safety model, NLA, firewall hardening notes |
+| [[Performance]] | Runtime costs, `-SkipSlowChecks`, fleet execution tips |
+| [[Contributing]] | Dev setup, tests, analyzer, release checklist |
+| [[Changelog]] | Version history |
 
 ---
 
-*Maintained by [Mikhail Deynekin](https://deynekin.com) · [mid1977@gmail.com](mailto:mid1977@gmail.com)*
+*[deynekin.com](https://deynekin.com)*

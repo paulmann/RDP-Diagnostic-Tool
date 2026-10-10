@@ -77,7 +77,7 @@ function New-ITSMIncident {
 }
 
 # Hook into diagnostic output
-$diagResult = Invoke-RdpDiagnostic -Target "rdsh01" -Mode Full -OutputFormat JSON | ConvertFrom-Json
+$diagResult = RDP-Tool.ps1 -Target "rdsh01" -Mode Full -OutputFormat JSON | ConvertFrom-Json
 if ($diagResult.overallStatus -eq "Critical") {
   New-ITSMIncident -Target "rdsh01" -IssueDescription ($diagResult.checks | Where-Object { $_.status -eq "Fail" } | ConvertTo-Json)
 }
@@ -92,7 +92,7 @@ if ($diagResult.overallStatus -eq "Critical") {
 ```mermaid
 graph TD
   RDSHosts["RDSH/VDI Hosts\n(30s polling)"]
-  PSCollector["PowerShell Collector\nInvoke-RdpDiagnostic -Mode Quick"]
+  PSCollector["PowerShell Collector\nRDP-Tool.ps1 -Mode Quick"]
   EventHub["Azure Event Hub\n(streaming ingestion)"]
   StreamAnalytics["Azure Stream Analytics\n(aggregation + alerts)"]
   ADLS["Azure Data Lake Storage\n(historical data)"]

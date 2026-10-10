@@ -1,607 +1,351 @@
 # RDP Diagnostic & Remediation Tool
 
 [![PowerShell](https://img.shields.io/badge/PowerShell-7%2B-blue?logo=powershell&logoColor=white)](https://docs.microsoft.com/en-us/powershell/)
-[![Windows](https://img.shields.io/badge/Windows-10%2F11-0078D4?logo=windows&logoColor=white)](https://www.microsoft.com/en-us/windows/)
+[![Windows](https://img.shields.io/badge/Windows-10%2F11%20%7C%20Server-0078D4?logo=windows&logoColor=white)](https://www.microsoft.com/en-us/windows/)
+[![CI](https://github.com/paulmann/RDP-Diagnostic-Tool/actions/workflows/ci.yml/badge.svg)](https://github.com/paulmann/RDP-Diagnostic-Tool/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-4.2.0-success.svg)](https://github.com/paulmann/RDP-Diagnostic-Tool/releases/tag/4.2.0)
+[![Version](https://img.shields.io/badge/Version-5.0.0-success.svg)](https://github.com/paulmann/RDP-Diagnostic-Tool/releases/latest)
 
-**A comprehensive PowerShell-based diagnostic and remediation tool for Remote Desktop Protocol (RDP) connectivity on Windows 10/11 systems.** This tool performs extensive system analysis, identifies configuration issues, and provides automated remediation capabilities with detailed HTML reporting.
+**A comprehensive PowerShell-based diagnostic and remediation tool for Remote Desktop Protocol (RDP) connectivity on Windows 10/11 and Windows Server.** One script, zero dependencies: it audits every RDP-related subsystem, repairs what it finds, proves the RDP stack actually answers with a real protocol handshake, and exports HTML/JSON reports for humans and automation alike.
 
 ## 📋 Table of Contents
 
-- [Overview](#overview)
+- [What's new in v5](#whats-new-in-v5)
+- [Quick Start](#quick-start)
 - [Features](#features)
-- [System Requirements](#system-requirements)
-- [Installation](#installation)
-- [Usage](#usage)
+- [Command-Line Reference](#command-line-reference)
 - [Command Examples](#command-examples)
+- [The RDP Protocol Handshake Probe](#the-rdp-protocol-handshake-probe)
+- [Auto-Update](#auto-update)
+- [Reporting & Automation](#reporting--automation)
+- [Exit Codes](#exit-codes)
 - [Supported Windows Editions](#supported-windows-editions)
 - [Architecture & Design](#architecture--design)
-- [Diagnostics Coverage](#diagnostics-coverage)
-- [Remediation Capabilities](#remediation-capabilities)
-- [Exit Codes](#exit-codes)
+- [Safety Model](#safety-model)
+- [Development & CI](#development--ci)
+- [Releasing (Maintainers)](#releasing-maintainers)
 - [Troubleshooting](#troubleshooting)
-- [Advanced Configuration](#advanced-configuration)
 - [Support](#support)
 
-## 🎯 Overview
+## What's new in v5
 
-Remote Desktop Protocol (RDP) is a critical component of modern Windows administration and remote work infrastructure. However, RDP configuration issues remain a common source of support tickets and connectivity problems. This tool addresses this challenge by providing:
+v5.0.0 is a full production refactor of v4.2.0. Highlights (see [CHANGELOG.md](CHANGELOG.md) for the complete list):
 
-### The Problem It Solves
+| Area | v5.0.0 |
+|---|---|
+| **Help** | Comprehensive built-in `-Help` + full comment-based help (`Get-Help -Full`) |
+| **Updates** | `-CheckUpdate` / `-Update` / `-UpdateSource` - GitHub-release-backed self-update with validation & backups |
+| **Diagnostics** | Real X.224/RDP negotiation handshake (`-TestRdpTarget`), TLS certificate audit, GPO overlay detection, session lifecycle & brute-force event mining, Public-profile firewall gap detection |
+| **Actions** | `-DisableRDP`, `-AddUser`, `-RestartServices`, `-Elevate`, standalone `-SetPort`, `-WhatIf`/`-Confirm` everywhere |
+| **Sessions** | `-ShowSessions` via WTS API (qwinsta fallback) |
+| **Reporting** | `-ExportJson`, `-LogPath`, `-Quiet`, `-NoColor`, `-NoEmoji`, `-NoBrowser`, redesigned HTML report |
+| **Correctness** | ~20 bug fixes: Home N (`CoreN`) edition misdetection, `Get-WmiObject` on PS7, `Invoke-Expression` remediations, broken firewall port matching, `$Verbose` gating bug, TermService "Automatic" false positive, ineffective `#Requires`, and more |
+| **Engineering** | GitHub Actions CI, PSScriptAnalyzer gate, Pester test-suite, strict mode, guarded check pipeline (one broken subsystem can't abort the run) |
 
-1. **Complex Diagnostics** - RDP failures can stem from dozens of different sources: misconfigured registry settings, disabled services, firewall rules, network profiles, permissions, Windows edition limitations, and more
-2. **Time-Consuming Troubleshooting** - Manual investigation requires knowledge of numerous registry keys, services, firewall rules, and system configurations
-3. **Error Recovery** - When RDP breaks, system administrators need a way to systematically identify and remediate the issue
-4. **Compliance Verification** - Organizations need to ensure systems are properly configured for remote access security
-
-### The Solution
-
-The **RDP Diagnostic & Remediation Tool** provides:
-
-- **Comprehensive System Analysis** - Checks 50+ different RDP-related configurations across registry, services, firewall, network, permissions, and system resources
-- **Automated Problem Detection** - Identifies misconfigurations with detailed severity levels (info, warning, error, critical)
-- **One-Click Remediation** - Automatically fixes common RDP issues with the `-EnableRDP` parameter
-- **Detailed Reporting** - Generates color-coded terminal output and optional HTML reports
-- **Safe Testing** - Diagnostic-only mode (`-DiagnoseOnly`) lets you assess issues without making changes
-- **Production-Ready** - Designed for enterprise environments with proper error handling and logging
-
-## ✨ Features
-
-### Core Diagnostic Capabilities
-
-| Feature | Description |
-|---------|-------------|
-| **Prerequisite Validation** | Checks administrative privileges, PowerShell version, Windows edition compatibility |
-| **Registry Analysis** | Validates 15+ critical RDP registry settings (connection state, port, authentication, security) |
-| **Service Configuration** | Audits 6+ RDP-related Windows services and their dependencies |
-| **Firewall Assessment** | Analyzes Windows Defender Firewall rules, profiles, and port accessibility |
-| **Network Configuration** | Evaluates network adapters, profiles (Private/Public/Domain), and connectivity |
-| **Port & Connectivity Testing** | Tests local port listening, network loopback, and external connectivity |
-| **Security Policy Review** | Checks Group Policy, UAC, Windows Defender, Credential Guard status |
-| **User Permissions Analysis** | Verifies Remote Desktop Users group membership and RDP rights |
-| **Performance Evaluation** | Reports on system resources (CPU, memory, graphics, disk) |
-| **Event Log Inspection** | Analyzes RDP-related events and security logs for errors/warnings |
-
-### Remediation Features
-
-- **Service Auto-Start** - Configures TermService and dependencies with correct startup types
-- **Registry Correction** - Applies recommended settings for RDP functionality and security
-- **Firewall Rule Management** - Creates and enables necessary inbound RDP rules
-- **Network Profile Adjustment** - Converts Public profiles to Private (with `-ForcePrivateNetwork`)
-- **Dependency Resolution** - Automatically starts dependent services
-- **Windows Feature Installation** - Can enable RemoteDesktop-Server feature if missing
-- **Permission Correction** - Adds users to Remote Desktop Users group
-- **Port Configuration** - Changes RDP port to non-standard values with `-ChangePort`
-
-### Reporting Capabilities
-
-- **Color-Coded Console Output** - Real-time results with visual severity indicators
-- **Structured Categorization** - Results grouped by component category (Core, Network, Security, etc.)
-- **HTML Export** - Professional reports saved to file with `-ExportReport`
-- **Timestamped Logging** - All diagnostic checks include precise timestamps
-- **Summary Statistics** - Executive overview with pass/fail/warning counts
-- **Detailed Remediation Log** - Complete history of attempted fixes and results
-- **Recommendations Section** - Actionable next steps based on findings
-
-## 🔧 System Requirements
-
-### Minimum Requirements
-
-| Requirement | Specification |
-|-------------|---|
-| **Operating System** | Windows 10/11 Pro, Enterprise, Education, or Server 2016+ |
-| **PowerShell** | 7.0 or higher (built into Windows 10/11) |
-| **Administrator Rights** | Required to read configuration and apply remediation |
-| **Disk Space** | Minimal (< 1 MB for script and reports) |
-| **RAM** | Minimal (diagnostic process uses < 50 MB) |
-
-### Supported Editions
-
-✅ **Fully Supported:**
-- Windows 10/11 Professional
-- Windows 10/11 Enterprise
-- Windows 10/11 Education
-- Windows 10/11 Pro for Workstations
-- Windows Server 2016/2019/2022
-
-❌ **Not Supported (No RDP Server):**
-- Windows 10/11 Home Edition*
-- Windows 10/11 S Mode
-
-> *Windows Home can use RDP Client to connect to other computers, but cannot accept incoming RDP connections (server functionality).
-
-### Supported Configurations
-
-| Aspect | Support |
-|--------|---------|
-| **Language** | English (script output, diagnostics) |
-| **Network** | Works in domain, workgroup, isolated networks |
-| **Virtualization** | Full support for VMs (Hyper-V, VMware, VirtualBox, etc.) |
-| **Graphics** | Works with dedicated GPUs, integrated graphics, and virtual adapters |
-| **Firewalls** | Compatible with Windows Defender Firewall and 3rd-party firewalls |
-
-## 📥 Installation
-
-### Method 1: Download from GitHub (Recommended)
+## Quick Start
 
 ```powershell
-# Navigate to desired directory
-cd $HOME\Desktop
+# 1) Get the tool (any method)
+git clone https://github.com/paulmann/RDP-Diagnostic-Tool
+#    or download RDP-Tool.ps1 from the latest Release
 
-# Download the latest script
-Invoke-WebRequest -Uri "https://github.com/paulmann/RDP-Diagnostic-Tool/raw/refs/heads/main/RDP-Tool.ps1" `
-    -OutFile "RDP-Tool.ps1"
+# 2) Audit this machine (read-only, works unelevated)
+pwsh -NoProfile -File .\RDP-Tool.ps1
 
-# Verify download
-Get-Item RDP-Tool.ps1
+# 3) Enable + repair RDP end-to-end (elevated, no prompts)
+pwsh -NoProfile -File .\RDP-Tool.ps1 -EnableRDP -Force
+
+# 4) Prove RDP answers on a remote host without credentials
+pwsh -NoProfile -File .\RDP-Tool.ps1 -TestRdpTarget "srv01.contoso.com:3390"
+
+# 5) Full reference
+pwsh -NoProfile -File .\RDP-Tool.ps1 -Help
 ```
 
-### Method 2: Clone Repository
+> If script execution is restricted, launch through `pwsh -File ...` as shown above (bypasses ExecutionPolicy for that invocation) or use `Unblock-File .\RDP-Tool.ps1` after downloading.
+
+## Features
+
+### Diagnostics (50+ checks, individually guarded)
+
+| Area | What is checked |
+|---|---|
+| **Prerequisites** | Elevation, PowerShell 7, OS/edition/SKU RDP-host support (explicit matrix incl. Home N & Windows SE), pending reboot (registry + optional DISM), RDP binaries (`termsrv.dll` version & friends), Server-SKU feature state |
+| **Registry** | `fDenyTSConnections`, `fEnableWinStation`, `PortNumber`, `UserAuthentication` (NLA), `SecurityLayer`, `MinEncryptionLevel`, transport selection, session limits, blank-password policy - each with **Group Policy overlay detection** (policy-managed values are reported, never "repaired" locally) |
+| **Group Policy** | Terminal Services / RDP client / CredentialsDelegation policy dump with risky-policy flags (RDP denied by GPO, NLA off by GPO, legacy SecurityLayer) |
+| **Services** | TermService (trigger-start aware), UmRdpService, SessionEnv, RpcSs/RpcEptMapper, audio stack for redirection; dependency health; WMI listener cross-check |
+| **Firewall** | MpsSvc, profile states, built-in RDP rule sets matched **language-independently**, custom port rules via port-filter association, BLOCK-rule conflicts, **Public-profile coverage gap** |
+| **Network** | Adapters, IPv4/IPv6, profile categories, gateway/DNS sanity |
+| **Listener & ports** | TCP/UDP listeners, owning process, non-standard port-ownership (squatting), fast loopback TCP probe |
+| **Protocol** | Unauthenticated **X.224/RDP negotiation handshake** against local and remote endpoints; detects non-RDP services on the port; reports TLS/CredSSP requirement; cross-checks wire vs registry NLA |
+| **Certificates** | Auto-generated & pinned (`SSLCertificateSHA1Hash`) certificates: expiry, private key, store lookup |
+| **Permissions** | "Remote Desktop Users" via **well-known SID** (works on localized Windows), current-user rights, member listing |
+| **Security posture** | NLA, UAC, Defender, Credential Guard/VBS, logon auditing presence |
+| **Events** | TermService errors, RCM 1148/1149 auth events, LSM session lifecycle 21-25, Security 4624/4625 (LogonType 10) with **brute-force source-IP rollup**, 4778/4779 reconnects |
+| **Resources** | RAM/CPU/disk thresholds, GPU inventory |
+| **External** (`-TestExternal`) | DNS, github.com:443 (updates), generic egress, TLS 1.2+ |
+
+### Remediation (explicit, safe, reversible)
+
+- `-EnableRDP` - one-shot enable & repair: registry baseline (incl. NLA enforcement, SecurityLayer=Negotiate, High encryption), trigger-aware service repair, firewall enable/create, current-user rights, listener rebind
+- `-DisableRDP` - secure disable with remote-session lockout guard
+- `-SetPort <n>` - listener port change incl. firewall rules and safe listener restart
+- `-AddUser <u1,u2>` - validated, idempotent group membership grants
+- `-RestartServices` - service-stack cycle with self-disconnect protection
+- `-ForcePrivateNetwork` - opt-in network re-categorization
+- Everything honors `-WhatIf` / `-Confirm`; `-Force` for unattended runs; GPO-managed settings are detected and skipped with precise guidance; firewall block rules are **disabled, not deleted** (reversible)
+
+### Reporting
+
+- Color-coded console output with emoji **and** automatic ASCII fallback (`-NoEmoji`, `NO_COLOR`, `-Quiet`)
+- **HTML** report: verdict banner, KPI tiles, per-check remedies, remediation log, connection instructions (`-ExportReport`)
+- **JSON** report for CI/monitoring (`-ExportJson`)
+- Plain-text run log, complete even in quiet mode (`-LogPath`)
+
+## Command-Line Reference
+
+```
+.\RDP-Tool.ps1 [<mode>] [<actions>] [<probes>] [<reporting>] [<update>] [<misc>]
+```
+
+### Modes (pick at most one)
+
+| Switch | Description |
+|---|---|
+| *(none)* | Full read-only diagnostic pass (default) |
+| `-DiagnoseOnly` | Explicit read-only audit; makes no changes even if combined with baseline flags like `-SetPort`/`-DisableNLA` (they only change what is audited against) |
+| `-EnableRDP` | Enable RDP + auto-remediate everything repairable |
+| `-DisableRDP` | Securely disable inbound RDP (registry + firewall) |
+| `-CheckUpdate` | Compare local version with the latest GitHub release (exit `5` = update available) |
+| `-Update` | Validate + back up + self-replace with the latest release |
+
+### Configuration actions (require elevation)
+
+| Switch | Description |
+|---|---|
+| `-SetPort <1024-65535>` | Change the listener port (alias: `-ChangePort`); composes with `-EnableRDP` |
+| `-DisableNLA` | Turn Network Level Authentication **off** (insecure - confirmation required) |
+| `-AddUser <u1,u2,...>` | Add accounts to "Remote Desktop Users" (local or `DOMAIN\user`) |
+| `-RestartServices` | Restart TermService/SessionEnv/UmRdpService (disconnect guard) |
+| `-ForcePrivateNetwork` | Re-categorize Public profiles to Private |
+
+### Probes & inspection
+
+| Switch | Description |
+|---|---|
+| `-TestRdpTarget <host[:port]>` | Real RDP negotiation handshake against a local/remote endpoint (no credentials) |
+| `-ShowSessions` | List live terminal sessions (WTS API, qwinsta fallback) |
+| `-TestExternal` | Outbound DNS/TCP connectivity checks |
+| `-SkipRebootCheck` | Skip pending-reboot detection |
+| `-SkipSlowChecks` | Skip DISM scan and full port-filter enumeration |
+
+### Reporting
+
+| Switch | Description |
+|---|---|
+| `-ExportReport <file.html>` | Styled self-contained HTML report |
+| `-ExportJson <file.json>` | Machine-readable report |
+| `-LogPath <file.log>` | Timestamped run log (appended) |
+| `-NoBrowser` | Don't auto-open the HTML report |
+| `-Quiet` | Summary + problems only |
+| `-NoColor` / `-NoEmoji` | Plain output (also auto-detected; `NO_COLOR` honored) |
+
+### Update & misc
+
+| Switch | Description |
+|---|---|
+| `-UpdateSource <src>` | `owner/repo` slug or direct HTTPS URL (mirrors/forks/air-gapped) |
+| `-Elevate` | Relaunch elevated with identical arguments (UAC) |
+| `-Force` | Skip interactive confirmations |
+| `-Version` | Version/runtime info |
+| `-Verbose` | Detailed per-check output (`-ShowVerbose` still works, deprecated) |
+| `-WhatIf` / `-Confirm` | Preview / gate every system change |
+| `-Help`, `-?`, `-h` | Comprehensive built-in help |
+
+## Command Examples
 
 ```powershell
-# Clone the entire repository
-git clone https://github.com/paulmann/RDP-Diagnostic-Tool.git
-cd RDP-Diagnostic-Tool
+# Daily-driver audit with all reports for a support ticket
+.\RDP-Tool.ps1 -ExportReport .\rdp-report.html -ExportJson .\rdp-report.json -LogPath .\rdp.log
+
+# Unattended fleet repair (SCCM/Intune/RMM): enable RDP, custom port, grant helpdesk
+.\RDP-Tool.ps1 -EnableRDP -SetPort 3390 -AddUser 'CONTOSO\rdp-helpdesk' -Force -Quiet -ExportJson C:\Temp\rdp.json
+
+# Dry run: show exactly what would be changed, touch nothing
+.\RDP-Tool.ps1 -EnableRDP -WhatIf
+
+# Probe a remote host: is that port REALLY RDP, and does it demand NLA?
+.\RDP-Tool.ps1 -TestRdpTarget 10.0.0.5:3390
+
+# Who is connected right now?
+.\RDP-Tool.ps1 -ShowSessions
+
+# Incident response: lock the machine down immediately
+.\RDP-Tool.ps1 -DisableRDP -Force
+
+# CI: fail the pipeline when RDP is broken or a newer tool version exists
+.\RDP-Tool.ps1 -DiagnoseOnly -ExportJson report.json     # exit 1/2 = broken
+.\RDP-Tool.ps1 -CheckUpdate                              # exit 5 = update available
+
+# Keep the tool current
+.\RDP-Tool.ps1 -Update -Force
 ```
 
-### Method 3: Manual Download
+## The RDP Protocol Handshake Probe
 
-1. Navigate to [GitHub Repository](https://github.com/paulmann/RDP-Diagnostic-Tool)
-2. Click **Code** → **Download ZIP**
-3. Extract to desired location
-4. Right-click `RDP-Tool.ps1` → **Properties** → check **Unblock** checkbox → **OK**
+Most tools stop at "port 3389 is open". RDP-Tool goes one layer deeper and speaks
+just enough of the protocol to prove the **RDP stack itself** is answering:
 
-### Execution Policy Configuration
+```
+Client ──► TPKT + X.224 Connection Request + RDP Negotiation Request (TLS|CredSSP)
+Server ──► X.224 Connection Confirm + Negotiation Response
+             ├─ selectedProtocol: Standard RDP | TLS | CredSSP (NLA)
+             └─ or failure code: SSL_REQUIRED_BY_SERVER, HYBRID_REQUIRED_BY_SERVER, ...
+```
 
-If you encounter execution policy restrictions:
+This is the same negotiation `mstsc.exe` performs before authentication - **no
+credentials are sent or needed**. The probe:
+
+- distinguishes "some TCP service owns the port" from "RDP answers"
+- reports whether NLA/CredSSP is enforced on the wire (and flags mismatches with the registry/GPO configuration)
+- surfaces exact protocol failure codes that explain classic errors like *"CredSSP encryption oracle remediation"* or *"The local security settings don't allow..."*
+- works against `localhost` (after the listener check) and any remote `host[:port]`
+
+## Auto-Update
+
+The tool carries a machine-readable version marker and knows its own repository:
 
 ```powershell
-# Option 1: Run single script bypassing policy
-powershell -ExecutionPolicy Bypass -File RDP-Tool.ps1 -DiagnoseOnly
-
-# Option 2: Temporarily change execution policy (current session only)
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
-.\RDP-Tool.ps1 -EnableRDP
+.\RDP-Tool.ps1 -CheckUpdate     # exit 0 = up to date, 5 = update available, 6 = check failed
+.\RDP-Tool.ps1 -Update          # interactive; add -Force for unattended
 ```
 
-## 🚀 Usage
+How `-Update` works:
 
-### Basic Syntax
+1. Resolve the newest version: **GitHub Releases API** (`releases/latest`) → if the asset `RDP-Tool.ps1` exists, it is used; otherwise the tagged raw file; if the API is unavailable/rate-limited → raw-file probe of the default branch with version-marker parsing.
+2. Download over TLS and **validate**: non-empty, minimum size, not an HTML error page, version marker present and matching the release, **full PowerShell syntax parse** of the payload.
+3. Back up the current script next to it (`RDP-Tool.ps1.bak-<timestamp>`; falls back to `%TEMP%`).
+4. Replace atomically (temp file + move). Re-run the tool to use the new version.
+
+Enterprise mirrors/air-gapped networks:
 
 ```powershell
-.\RDP-Tool.ps1 [OPTIONS]
+.\RDP-Tool.ps1 -Update -UpdateSource https://intranet/tools/RDP-Tool.ps1   # direct file
+.\RDP-Tool.ps1 -Update -UpdateSource contoso/RDP-Diagnostic-Tool           # fork slug
 ```
 
-### Display Help
+## Reporting & Automation
+
+- **JSON** (`-ExportJson`) - stable schema: `tool`, `version`, `reportId`, `systemInfo`, `summary` (counts + exit code), `results[]` (component/status/details/remedy/severity/category), `remediations[]`, `tests[]`. Pipe into `ConvertFrom-Json`, ship to SIEM/dashboards, diff between runs.
+- **HTML** (`-ExportReport`) - self-contained (inline CSS), safe to attach to tickets; HTML-encodes all dynamic data.
+- **Log** (`-LogPath`) - appended, timestamped, includes every check and change even under `-Quiet`.
+- **Exit codes** - designed for schedulers/CI (table below).
+
+Example (fail a build on any RDP error):
 
 ```powershell
-# Show help message
-.\RDP-Tool.ps1 -Help
-
-# Or use aliases
-.\RDP-Tool.ps1 -?
-.\RDP-Tool.ps1 /?
+pwsh -NoProfile -File .\RDP-Tool.ps1 -DiagnoseOnly -Quiet -ExportJson rdp.json
+if ($LASTEXITCODE -ge 1 -and $LASTEXITCODE -le 2) { throw "RDP misconfigured (exit $LASTEXITCODE)" }
 ```
 
-## 📚 Command Examples
+## Exit Codes
 
-### Example 1: Diagnostic Mode (No Changes)
+| Code | Meaning |
+|---|---|
+| `0` | Success - system ready / action completed / up to date |
+| `1` | **Critical** issues - RDP will not work until resolved |
+| `2` | Errors detected - RDP degraded or limited |
+| `3` | Unsupported Windows edition (Home / SE cannot host RDP) |
+| `4` | Prerequisite not met (elevation required, invalid parameter combination, non-Windows platform) |
+| `5` | Update available (`-CheckUpdate` only) |
+| `6` | Update failed |
+| `99` | Unhandled script error |
 
-Run complete diagnostics without modifying system configuration:
+## Supported Windows Editions
+
+| Edition | RDP **host** | Notes |
+|---|---|---|
+| Windows 10/11 Pro, Pro for Workstations, Pro Education | ✅ | |
+| Windows 10/11 Enterprise (incl. LTSC), Education | ✅ | |
+| Windows IoT Enterprise / Enterprise multi-session (ServerRdsh) | ✅ | |
+| Windows Server 2016 / 2019 / 2022 / 2025 | ✅ | Admin sessions; RDS role for published desktops |
+| Windows 10/11 **Home / Home N / Single Language** | ❌ | Client connections only; tool exits `3` with guidance |
+| Windows 11 **SE** (`CloudEdition`) | ❌ | |
+
+> The v4 edition regex misidentified **Home N (`CoreN`)** as RDP-capable. v5 uses an explicit, tested edition matrix (see `tests/`).
+
+## Architecture & Design
+
+```
+RDP-Tool.ps1 (single file, ~4300 lines, UTF-8 BOM, PowerShell 7+)
+│
+├─ Metadata           single version marker (release & update contract)
+├─ Console/Logging    color+emoji auto-detection, ASCII fallback, file logger
+├─ State              script-scoped result/remediation/test stores (no $global:)
+├─ Validation         parameter-combination matrix with actionable errors
+├─ Help/Version       built-in reference + comment-based help for Get-Help
+├─ Update engine      releases API → raw probe fallback, validate → backup → atomic swap
+├─ Checks (Test-*)    each wrapped in Invoke-Check (isolated failures)
+│   └─ registry(+GPO) · services · firewall · network · listener · handshake ·
+│      certificate · permissions · security · resources · event logs
+├─ Session engine     WTS P/Invoke (Unicode-correct) + qwinsta fallback
+├─ Remediation        ShouldProcess-aware, GPO-aware, idempotent, recorded
+├─ Reporting          HTML / JSON / console summary / exit-code mapping
+└─ Main               phase pipeline: prereqs → remediate → verify → report
+```
+
+Design rules the codebase follows:
+
+1. **Never abort early** - every check is guarded; a dead WMI or firewall API degrades the report, it doesn't kill it.
+2. **Never guess** - localized systems are handled via well-known SIDs and language-independent firewall rule names; GPO-managed values are detected instead of being silently overwritten.
+3. **Never surprise** - no changes without explicit action switches; `-WhatIf` end-to-end; dangerous actions (NLA off, service restart in a live session, disabling RDP remotely) require confirmation or `-Force`.
+4. **Be testable** - pure logic (protocol codecs, edition matrix, validators) is unit-tested; `RDPDIAG_LIB=1` enables dot-sourcing without side effects.
+
+## Safety Model
+
+- Read-only by default; elevation only required for actions (diagnostics run unelevated with reduced coverage).
+- `-WhatIf` shows the full remediation plan without touching the system.
+- GPO-locked settings are reported with exact policy paths instead of futile local edits.
+- Remote-session guards prevent self-lockout on `-DisableRDP` / `-RestartServices` / port changes.
+- The tool never reads, stores, or transmits credentials; the handshake probe stops before authentication.
+- Updates: TLS only, content validation incl. syntax parse, timestamped backup, atomic replace.
+
+## Development & CI
 
 ```powershell
-.\RDP-Tool.ps1 -DiagnoseOnly
+# Lint
+Invoke-ScriptAnalyzer -Path .\RDP-Tool.ps1 -Settings .\ScriptAnalyzerSettings.psd1
 
-# With verbose output for detailed information
-.\RDP-Tool.ps1 -DiagnoseOnly -ShowVerbose
+# Test (Pester 5+)
+Invoke-Pester .\tests -Output Detailed
 ```
 
----
-
-### Example 2: Enable RDP with Automatic Remediation
-
-Configure RDP with automatic fixing of common issues:
-
-```powershell
-.\RDP-Tool.ps1 -EnableRDP
-
-# With private network enforcement
-.\RDP-Tool.ps1 -EnableRDP -ForcePrivateNetwork
-```
-
----
-
-### Example 3: Change RDP Port
-
-Configure RDP on non-standard port for security:
-
-```powershell
-# Use port 3390 instead of default 3389
-.\RDP-Tool.ps1 -ChangePort 3390 -EnableRDP
-
-# Diagnose configuration on custom port
-.\RDP-Tool.ps1 -ChangePort 3390 -DiagnoseOnly
-```
-
----
-
-### Example 4: Export Diagnostic Report
-
-Generate HTML report for documentation:
-
-```powershell
-.\RDP-Tool.ps1 -DiagnoseOnly -ExportReport "C:\Reports\RDP-Report.html"
-
-# With detailed analysis
-.\RDP-Tool.ps1 -DiagnoseOnly -ShowVerbose -ExportReport ".\RDP-Report-$(Get-Date -f yyyy-MM-dd).html"
-```
-
----
-
-### Example 5: Comprehensive Analysis with External Testing
-
-Run full diagnostics including external connectivity:
-
-```powershell
-.\RDP-Tool.ps1 -DiagnoseOnly -ShowVerbose -TestExternal
-
-# Full remediation with testing
-.\RDP-Tool.ps1 -EnableRDP -TestExternal -ExportReport ".\Full-Analysis.html"
-```
-
----
-
-### Example 6: Troubleshoot RDP Issues
-
-Step-by-step troubleshooting approach:
-
-```powershell
-# Step 1: Diagnose without changes
-.\RDP-Tool.ps1 -DiagnoseOnly -ShowVerbose
-
-# Step 2: Review critical issues
-# (Check output for [CRITICAL] and [ERROR] items)
-
-# Step 3: Apply fixes
-.\RDP-Tool.ps1 -EnableRDP
-
-# Step 4: Verify remediation
-.\RDP-Tool.ps1 -DiagnoseOnly
-
-# Step 5: Export final report
-.\RDP-Tool.ps1 -DiagnoseOnly -ExportReport ".\RDP-Final-Status.html"
-
-# Step 6: Restart if needed
-Restart-Computer -Confirm
-```
-
----
-
-### Example 7: Private Network Enforcement
-
-Configure RDP with Private network profile requirement:
-
-```powershell
-# Force all network connections to Private profile
-.\RDP-Tool.ps1 -EnableRDP -ForcePrivateNetwork
-```
-
----
-
-### Example 8: Disable NLA (For Compatibility)
-
-Connect from older RDP clients that don't support NLA:
-
-```powershell
-# Disable Network Level Authentication (less secure)
-.\RDP-Tool.ps1 -EnableRDP -DisableNLA
-```
-
-⚠️ **Security Warning:** Only disable NLA for legacy client compatibility.
-
----
-
-### Example 9: Real-World Scenario - System Recovery
-
-After unexpected RDP failure:
-
-```powershell
-# Step 1: Analyze current state
-.\RDP-Tool.ps1 -DiagnoseOnly -ShowVerbose -ExportReport "Before.html"
-
-# Step 2: Attempt automatic recovery
-.\RDP-Tool.ps1 -EnableRDP -ForcePrivateNetwork
-
-# Step 3: Verify restoration
-.\RDP-Tool.ps1 -DiagnoseOnly -TestExternal -ExportReport "After.html"
-
-# Step 4: Reboot
-Restart-Computer -Force
-```
-
-## 🏷️ Supported Windows Editions
-
-### Professional Editions (✅ Full RDP Server Support)
-
-| Edition | RDP Support | Details |
-|---------|:-----------:|---------|
-| **Windows 11 Pro** | ✅ Yes | Recommended for modern deployments |
-| **Windows 10 Pro** | ✅ Yes | Stable and widely used |
-| **Windows 11 Enterprise** | ✅ Yes | Full featured, LTSC option available |
-| **Windows 10 Enterprise** | ✅ Yes | LTSC version for long-term support |
-| **Windows Server 2016/2019/2022** | ✅ Yes | Server edition, fully supported |
-
-### Consumer Editions (❌ No RDP Server Support)
-
-| Edition | RDP Server | RDP Client | Details |
-|---------|:----------:|:----------:|---------|
-| **Windows 11 Home** | ❌ No | ✅ Yes | Cannot accept connections, can initiate them |
-| **Windows 10 Home** | ❌ No | ✅ Yes | Cannot accept connections, can initiate them |
-
-## 🏗️ Architecture & Design
-
-### Script Organization
-
-The tool is organized into logical regions for maintainability:
-
-```
-1. Parameters & Help        - Command-line interface definition
-2. Initialization           - Global variables, color definitions, functions
-3. Prerequisite Checks      - Admin rights, PowerShell version, OS compatibility
-4. Windows Edition Analysis - Edition detection and RDP support verification
-5. RDP Capability Tests     - DLL checks, driver validation
-6. Enhanced Diagnostics     - Registry, services, firewall, network analysis
-7. Security & Policies      - Group Policy, UAC, Defender, Credential Guard
-8. User Permissions         - Remote Desktop Users group, RDP rights
-9. Performance Analysis     - System resources, CPU, memory, graphics, disk
-10. Event Log Analysis      - RDP event examination
-11. Reporting              - Summary generation and HTML export
-12. Main Execution         - Orchestration of all diagnostic flows
-```
-
-### Design Principles
-
-- **Modular Functions** - Each diagnostic area is independently testable
-- **Error Handling** - Comprehensive try-catch blocks prevent cascading failures
-- **Structured Output** - Diagnostic results stored in PowerShell objects for analysis
-- **Color Coding** - Severity levels visually indicated (Green=OK, Yellow=Warning, Red=Error)
-- **Safe Defaults** - Diagnostic mode by default, remediation opt-in
-- **Comprehensive Logging** - All actions timestamped and recorded
-- **User-Centric** - Clear guidance on issues and how to fix them
-
-## 🔍 Diagnostics Coverage
-
-### Registry Validation (15+ Settings)
-
-The tool validates critical RDP registry configuration:
-
-```powershell
-HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\
-├─ fDenyTSConnections        (0 = RDP enabled)
-├─ fSingleSessionPerUser     (0 = Multiple connections)
-└─ WinStations\RDP-Tcp\
-   ├─ PortNumber             (Default: 3389)
-   ├─ UserAuthentication     (1 = NLA enabled)
-   ├─ SecurityLayer          (2 = Negotiate security)
-   ├─ MinEncryptionLevel     (3 = High encryption)
-   ├─ MaxConnectionTime      (0 = Unlimited)
-   ├─ MaxIdleTime            (0 = Unlimited)
-   └─ fDisableAudioCapture   (1 = Disable audio)
-```
-
-### Service Analysis (6 Services)
-
-Critical RDP services and their dependencies:
-
-1. **TermService** (Remote Desktop Services) - Core RDP service
-2. **SessionEnv** (Remote Desktop Configuration) - Session management
-3. **UmRdpService** (RDP UserMode Port Redirector) - USB redirection
-4. **RdpVideoMiniport** (Video Miniport Driver) - Video streaming
-5. **AudioEndpointBuilder** (Windows Audio Endpoint) - Audio support
-6. **Audiosrv** (Windows Audio) - Audio service
-
-### Firewall Rules Analysis
-
-- Inbound RDP rules (TCP/UDP on configured port)
-- Blocked port detection
-- Profile-specific rules (Domain/Private/Public)
-- Network Discovery rules
-- Conflicting rules identification
-
-### Network Configuration Checks
-
-- Physical adapter status
-- IP address configuration (IPv4/IPv6)
-- Network profiles (Private/Public/Domain)
-- Default gateway
-- DNS resolution
-- Network isolation rules
-
-### Security Verification
-
-- Group Policy RDP settings
-- User Account Control status
-- Windows Defender real-time protection
-- Credential Guard activation
-- Security event log auditing
-- User permissions and group membership
-
-## 🔧 Remediation Capabilities
-
-### Automatic Fixes Applied with `-EnableRDP`
-
-| Component | Action | Details |
-|-----------|--------|---------|
-| **Registry** | Correct misconfigured values | Apply recommended RDP settings |
-| **Services** | Enable and start required services | TermService + dependencies |
-| **Firewall** | Create inbound rules | TCP/UDP on configured port |
-| **Network** | Change to Private profile | If using -ForcePrivateNetwork |
-| **Permissions** | Add users to RDP group | If current user not authorized |
-| **Features** | Enable RDP Windows feature | If not installed |
-| **Dependencies** | Start service dependencies | Auto-resolve broken dependency chains |
-| **Port** | Configure custom RDP port | If using -ChangePort |
-
-## 📊 Exit Codes
-
-The script returns specific exit codes for automation and scripting:
-
-```powershell
-$exitCode = & .\RDP-Tool.ps1 -DiagnoseOnly
-
-switch ($exitCode) {
-    0 { Write-Host "RDP fully functional" }
-    1 { Write-Host "Critical errors prevent RDP" }
-    2 { Write-Host "RDP may work with limitations" }
-    3 { Write-Host "Windows edition doesn't support RDP Server" }
-    4 { Write-Host "Missing critical prerequisites" }
-    99 { Write-Host "Script execution error" }
-}
-```
-
-| Code | Meaning | Action |
-|------|---------|--------|
-| **0** | ✅ All tests passed | RDP ready for use |
-| **1** | ❌ Critical errors | Fix issues before using RDP |
-| **2** | ⚠️ Warnings detected | RDP may work with limitations |
-| **3** | ❌ Unsupported edition | Upgrade to Pro/Enterprise edition |
-| **4** | ❌ Missing prerequisites | Install required components |
-| **99** | ❌ Script error | Check prerequisites and retry |
-
-## 🆘 Troubleshooting
-
-### Issue: "Access Denied" / "Not Administrator"
-
-```powershell
-# Problem: Script requires administrative privileges
-# Solution: Run PowerShell as Administrator
-
-# Right-click PowerShell → Run as Administrator
-# Then execute the script:
-.\RDP-Tool.ps1 -EnableRDP
-```
-
----
-
-### Issue: "Execution Policy Prevents Script"
-
-```powershell
-# Problem: PowerShell execution policy blocks script
-# Solution 1: Bypass for single execution
-powershell -ExecutionPolicy Bypass -File RDP-Tool.ps1 -DiagnoseOnly
-
-# Solution 2: Change policy (temporary)
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
-.\RDP-Tool.ps1 -EnableRDP
-
-# Solution 3: Unblock downloaded file
-Unblock-File -Path .\RDP-Tool.ps1
-.\RDP-Tool.ps1 -DiagnoseOnly
-```
-
----
-
-### Issue: "Windows Edition Not Supported"
-
-```powershell
-# Problem: Running on Windows Home edition
-# Why: Windows Home doesn't include RDP Server capability
-
-# Solutions:
-#   1. Upgrade to Windows Pro ($99-199)
-#   2. Use alternative: TeamViewer, AnyDesk, Chrome Remote Desktop
-#   3. Use Windows Quick Assist (built-in)
-
-# Check your edition:
-Get-CimInstance -ClassName Win32_OperatingSystem | Select-Object Caption
-```
-
----
-
-### Issue: "Cannot Connect from Remote Client"
-
-```powershell
-# Network connectivity tests:
-.\RDP-Tool.ps1 -TestExternal
-
-# Verify firewall rules:
-Get-NetFirewallRule -DisplayName "*Remote Desktop*"
-
-# Test port listening:
-Test-NetConnection -ComputerName localhost -Port 3389 -Verbose
-
-# Check network profile:
-Get-NetConnectionProfile
-
-# Verify from remote:
-Test-NetConnection -ComputerName <hostname/IP> -Port 3389 -Verbose
-```
-
----
-
-### Issue: "Performance Is Slow"
-
-```powershell
-# Analyze performance:
-.\RDP-Tool.ps1 -DiagnoseOnly | Select-String -Pattern "Memory|CPU|Graphics|Disk"
-
-# Check Event Logs for errors:
-Get-WinEvent -LogName System -FilterXPath "*[System[Provider[@Name='TermService']]]" -MaxEvents 10
-```
-
-## 🔨 Advanced Configuration
-
-### Custom Port Configuration
-
-```powershell
-# Change RDP to port 3390
-.\RDP-Tool.ps1 -ChangePort 3390 -EnableRDP
-
-# Connect using custom port:
-mstsc /v:servername:3390
-```
-
-### Network Level Authentication (NLA)
-
-```powershell
-# Disable NLA (for legacy clients)
-.\RDP-Tool.ps1 -EnableRDP -DisableNLA
-
-# Re-enable NLA (recommended)
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" `
-    -Name UserAuthentication -Value 1 -Force
-```
-
-### Force Private Network Profile
-
-```powershell
-# Enforce Private network profile for enhanced security
-.\RDP-Tool.ps1 -EnableRDP -ForcePrivateNetwork
-
-# View network profiles:
-Get-NetConnectionProfile
-```
-
-## 📞 Support
-
-### Documentation
-
-- **GitHub Issues** - [Report bugs and request features](https://github.com/paulmann/RDP-Diagnostic-Tool/issues)
-- **Discussions** - [Ask questions and share knowledge](https://github.com/paulmann/RDP-Diagnostic-Tool/discussions)
-
-### Author
-
-**Mikhail Deynekin**
-- Website: [deynekin.com](https://deynekin.com)
-- Email: [mid1977@gmail.com](mailto:mid1977@gmail.com)
-- GitHub: [@paulmann](https://github.com/paulmann)
-
-### License
-
-This project is licensed under the MIT License. See the LICENSE file for full details.
-
----
-
-**Version:** 4.2.0  
-**Last Updated:** December 8, 2025  
-**Status:** Production Ready
+CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs on every push/PR:
+syntax parse gate (Windows + Ubuntu), PSScriptAnalyzer gate (zero Error/Warning with project settings), and the Pester suite on `windows-latest` (integrity, help coverage, parameter surface, protocol codec, edition matrix, update validation, CLI behavior incl. exit codes).
+
+## Releasing (Maintainers)
+
+1. Bump `$script:ToolVersion` **and** the `.NOTES` version in the comment help **and** add the `CHANGELOG.md` entry (the test-suite enforces marker ↔ changelog consistency).
+2. Merge to `main`; CI must be green.
+3. Create a GitHub **Release** with tag `X.Y.Z` (the updater parses the tag; a `v` prefix is tolerated). Optionally attach `RDP-Tool.ps1` as a release asset - the updater prefers assets and falls back to the tagged raw file.
+4. Verify: `.\RDP-Tool.ps1 -CheckUpdate` from an older copy must report "update available" (exit 5).
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| *"cannot be loaded because running scripts is disabled"* | Run via `pwsh -NoProfile -File .\RDP-Tool.ps1 ...` or `Unblock-File .\RDP-Tool.ps1` |
+| Tool says *ELEVATION REQUIRED* (exit 4) | Re-run with `-Elevate`, or start PowerShell as Administrator |
+| Emoji render as boxes | Legacy console: the tool auto-falls back to ASCII; force with `-NoEmoji`; or use Windows Terminal |
+| `-CheckUpdate` fails behind a proxy | Configure `pwsh` proxy settings or use `-UpdateSource <internal mirror URL>` |
+| Home edition (exit 3) | RDP hosting is a Microsoft licensing restriction; see in-tool guidance for alternatives |
+| Changes don't take effect | Check for GPO-managed values (the report flags them) and pending reboots |
+
+More: [wiki/Troubleshooting](https://github.com/paulmann/RDP-Diagnostic-Tool/wiki/Troubleshooting)
+
+## Support
+
+- 📖 Wiki: <https://github.com/paulmann/RDP-Diagnostic-Tool/wiki>
+- 🐞 Issues: <https://github.com/paulmann/RDP-Diagnostic-Tool/issues> - attach an `-ExportReport` HTML and the `-LogPath` log
+- 📜 [Changelog](CHANGELOG.md) · [License (MIT)](LICENSE)
+- ✍️ Author: Mikhail Deynekin [ Deynekin.com ]

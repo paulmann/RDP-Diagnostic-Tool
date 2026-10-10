@@ -66,3 +66,6 @@ out/
 local_config.ps1
 test_results/
 diagnostics/
+
+# RAGRAF code index (machine-local, rebuilt automatically)
+.ragraf/
