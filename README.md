@@ -3,7 +3,6 @@
 [![PowerShell](https://img.shields.io/badge/PowerShell-7%2B-blue?logo=powershell&logoColor=white)](https://docs.microsoft.com/en-us/powershell/)
 [![Windows](https://img.shields.io/badge/Windows-10%2F11%20%7C%20Server-0078D4?logo=windows&logoColor=white)](https://www.microsoft.com/en-us/windows/)
 [![CI](https://github.com/paulmann/RDP-Diagnostic-Tool/actions/workflows/ci.yml/badge.svg)](https://github.com/paulmann/RDP-Diagnostic-Tool/actions/workflows/ci.yml)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/paulmann/RDP-Diagnostic-Tool/blob/main/LICENSE)
 [![Version](https://img.shields.io/badge/Version-5.0.1-success.svg)](https://github.com/paulmann/RDP-Diagnostic-Tool/releases/latest)
 [![npm](https://img.shields.io/npm/v/rdp-diagnostic-tool.svg?logo=npm)](https://www.npmjs.com/package/rdp-diagnostic-tool)
 [![npm downloads](https://img.shields.io/npm/dm/rdp-diagnostic-tool.svg)](https://www.npmjs.com/package/rdp-diagnostic-tool)
