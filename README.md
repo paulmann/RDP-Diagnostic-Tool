@@ -416,5 +416,5 @@ More: [wiki/Troubleshooting](https://github.com/paulmann/RDP-Diagnostic-Tool/wik
 
 - 📖 Wiki: <https://github.com/paulmann/RDP-Diagnostic-Tool/wiki>
 - 🐞 Issues: <https://github.com/paulmann/RDP-Diagnostic-Tool/issues> - attach an `-ExportReport` HTML and the `-LogPath` log
-- 📜 [Changelog](https://github.com/paulmann/RDP-Diagnostic-Tool/blob/main/CHANGELOG.md) · [License (MIT)](https://github.com/paulmann/RDP-Diagnostic-Tool/blob/main/LICENSE)
+- 📜 [Changelog](https://github.com/paulmann/RDP-Diagnostic-Tool/blob/main/CHANGELOG.md) · [License (PolyForm Noncommercial 1.0.0)](https://github.com/paulmann/RDP-Diagnostic-Tool/blob/main/LICENSE)
 - ✍️ Author: Mikhail Deynekin [ Deynekin.com ]
