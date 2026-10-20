@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://paulmann.github.io/RDP-Diagnostic-Tool/sitemap.xml
